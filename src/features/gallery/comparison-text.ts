@@ -5,10 +5,13 @@ import {
   type OrbitComparison,
 } from "@/lib/physics/perturbation";
 
+// Decimales fijos: la lectura cambia en cada fotograma y no debe temblar.
 const twoDecimals = new Intl.NumberFormat("es-ES", {
+  minimumFractionDigits: 2,
   maximumFractionDigits: 2,
 });
 const oneDecimal = new Intl.NumberFormat("es-ES", {
+  minimumFractionDigits: 1,
   maximumFractionDigits: 1,
 });
 

@@ -10,8 +10,8 @@ export const CURVE_FILTERS: readonly {
   label: string;
 }[] = [
   { value: "all", param: null, label: "Todas" },
-  { value: "shared", param: "compartida", label: "Una curva compartida" },
-  { value: "separate", param: "propia", label: "Una curva por cuerpo" },
+  { value: "shared", param: "compartida", label: "Curva compartida" },
+  { value: "separate", param: "propia", label: "Curva propia" },
 ];
 
 /** La URL es una entrada externa: cualquier valor desconocido equivale a "todas". */

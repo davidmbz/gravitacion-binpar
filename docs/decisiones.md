@@ -103,3 +103,31 @@ Una entrada por decisión relevante. Este registro alimenta el README y la prepa
 * Alternativas descartadas: imágenes estáticas en el repositorio, que quedarían desfasadas si cambia el dibujo. Fijar `metadataBase`, innecesario porque en Vercel Next toma el dominio de producción.
 * Decisión: `opengraph-image.tsx` con `ImageResponse`, generada en build con el mismo trazado que la galería.
 * Coste: usa la fuente por defecto, porque `ImageResponse` no admite woff2 y Caslon exigiría añadir un TTF al repositorio. El renderizador ignora la proporción del `viewBox`, así que el SVG debe calcular la suya. Ningún test automático detecta una imagen deformada.
+
+### Pantalla completa sin ocultar contenido
+
+* Contexto: Aprende, galería y detalle deben llenar el alto disponible sin scroll, pero una ventana baja o un zoom alto no pueden perder contenido.
+* Alternativas descartadas: `overflow: hidden` en la página, que encaja a la fuerza y deja contenido inalcanzable. Una hoja inferior para el tutor en móvil, que añade otra capa y otro manejo del foco.
+* Decisión: `.app-screen` mide `100dvh` menos la cabecera, con un alto mínimo. Por debajo de ese mínimo, la página recupera su scroll normal. Solo los paneles tienen scroll interno. El tutor es una pestaña del panel en los dos tamaños, y sigue montado para conservar la conversación.
+* Coste: el alto mínimo es un número que hay que mantener. En iOS el teclado no encoge `100dvh`, por lo que `use-viewport-height` publica el alto real, y al escribir en móvil la mesa se oculta para dejar sitio al campo. No se ha probado en un teléfono real.
+
+### Fases de Aprende
+
+* Contexto: la página mostraba a la vez predicción, controles bloqueados, fórmula y tutor. Parecía un formulario, y el resultado solo se leía en texto.
+* Alternativas descartadas: mantener los controles visibles pero deshabilitados, que añade ruido y sugiere una acción que no existe.
+* Decisión: una sola fase a la vez, con `predict`, `result`, `explore` y `closing` en el reducer. Al revelar el resultado, la mesa aplica el cambio por el que se preguntó, deja el contorno de lo anterior y marca hasta dónde llegaba la flecha. Volver a un paso ya respondido entra en Explorar.
+* Coste: hay más pulsaciones por paso. La fase de resultado cambia la escena sin que la persona toque nada, y se resuelve volviendo a la escena inicial al explorar.
+
+### Rejilla de la galería
+
+* Contexto: seis láminas iguales desperdiciaban espacio, porque Figura de ocho y Butterfly I son mucho más anchas que altas. En una curva compartida, además, el último cuerpo tapaba a los otros dos.
+* Alternativas descartadas: destacar una órbita a mano, que no tiene una razón defendible. Usar `grid-auto-flow: dense` para evitar huecos en móvil, que separa el orden visual del de teclado.
+* Decisión: la lámina es ancha si su encuadre real lo es. El orden elegido llena cuatro y dos columnas sin huecos, y un test lo comprueba con las órbitas reales. En las curvas compartidas se dibuja el tercio que recorre cada cuerpo, y así aparecen los tres colores.
+* Coste: el orden ya no es el del catálogo. Al filtrar en móvil puede quedar un hueco, porque el orden solo está pensado para las seis.
+
+### Pantalla de detalle
+
+* Contexto: la órbita competía con datos y explicación, y los límites de la animación quedaban en medio del texto.
+* Alternativas descartadas: dejar la descripción en el cliente, que la sacaría del HTML del servidor. Abrir el resultado de Perturbar en un diálogo, que taparía justo lo que hay que mirar.
+* Decisión: el reproductor es el contenedor de la pantalla y recibe del servidor la figura y el contenido de las pestañas como props. Los controles van en una barra sobre la órbita. Órbita y Límites de la animación son pestañas visibles desde el principio, y Perturbación aparece al usarla.
+* Coste: el reproductor conoce la distribución de la pantalla además de la reproducción, y crece como componente. El encuadre sigue cambiando con `setAttribute` sobre el SVG.

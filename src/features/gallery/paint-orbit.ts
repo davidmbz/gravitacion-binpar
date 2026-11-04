@@ -29,16 +29,21 @@ export function sizeCanvas(canvas: HTMLCanvasElement): void {
  */
 export function startLoop(step: (seconds: number) => void): () => void {
   let frame = 0;
+  let stopped = false;
   let previous: number | null = null;
 
   const tick = (now: number) => {
     step(previous === null ? 0 : (now - previous) / 1000);
     previous = now;
-    frame = requestAnimationFrame(tick);
+    // `step` puede detener el bucle desde dentro de este mismo fotograma.
+    if (!stopped) frame = requestAnimationFrame(tick);
   };
 
   frame = requestAnimationFrame(tick);
-  return () => cancelAnimationFrame(frame);
+  return () => {
+    stopped = true;
+    cancelAnimationFrame(frame);
+  };
 }
 
 /** Pinta cuerpos y estela con el mismo encaje que el SVG: centrado y entero. */
@@ -77,7 +82,7 @@ export function paintOrbit(
 
   for (let body = 0; body < BODY_COUNT; body++) {
     context.strokeStyle = BODY_COLORS[body];
-    context.lineWidth = 2.5 * ratio;
+    context.lineWidth = 3.5 * ratio;
     for (let i = 1; i < trail.length; i++) {
       context.globalAlpha = i / trail.length;
       context.beginPath();

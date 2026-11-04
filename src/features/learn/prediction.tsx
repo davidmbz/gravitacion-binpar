@@ -1,128 +1,50 @@
-"use client";
+import type { FormEvent } from "react";
+import type { Step } from "./steps";
 
-import { useRef, useState, type FormEvent, type Ref } from "react";
-import { flushSync } from "react-dom";
-import type { PredictionState } from "./learn-reducer";
-import { SprayFigure } from "./spray-figure";
-import { gradePrediction, type Step } from "./steps";
-
-type FeedbackProps = {
-  step: Step;
-  optionId: string;
-  ref: Ref<HTMLDivElement>;
-};
-
-function Feedback({ step, optionId, ref }: FeedbackProps) {
-  const { isCorrect, explanation } = gradePrediction(step, optionId);
-
-  return (
-    <div
-      ref={ref}
-      tabIndex={-1}
-      className={`mt-5 scroll-mt-60 border-l-2 pl-4 lg:scroll-mt-6 ${
-        isCorrect ? "border-verdigris" : "border-cinnabar"
-      }`}
-    >
-      <p
-        className={`text-lg ${isCorrect ? "text-verdigris" : "text-cinnabar"}`}
-      >
-        {isCorrect ? "Has acertado" : "No es esa"}
-      </p>
-      <p className="mt-1">{explanation}</p>
-      <p className="mt-3">{step.takeaway}</p>
-      {step.id === "distance" && <SprayFigure />}
-      <p className="mt-3 italic">{step.invitation}</p>
-      <p className="mt-3">
-        <a href="#tutor-title" className="inline-block py-2">
-          ¿Algo no te encaja? Pregunta al tutor
-        </a>
-      </p>
-    </div>
-  );
-}
-
-function optionNote(step: Step, optionId: string, chosenId: string) {
-  if (optionId === step.correctOptionId) {
-    return optionId === chosenId
-      ? "Tu respuesta, correcta"
-      : "Respuesta correcta";
-  }
-  return optionId === chosenId ? "Tu respuesta" : null;
-}
+export const PREDICTION_FORM_ID = "prediction-form";
 
 type PredictionProps = {
   step: Step;
-  prediction: PredictionState;
-  onAnswer: (optionId: string) => void;
+  selectedId: string | null;
+  onSelect: (optionId: string) => void;
+  onSubmit: () => void;
 };
 
-export function Prediction({ step, prediction, onAnswer }: PredictionProps) {
-  const [selectedId, setSelectedId] = useState<string | null>(null);
-  const feedbackRef = useRef<HTMLDivElement>(null);
-  const isAnswered = prediction.status === "answered";
-  const checkedId = isAnswered ? prediction.optionId : selectedId;
-
+export function Prediction({
+  step,
+  selectedId,
+  onSelect,
+  onSubmit,
+}: PredictionProps) {
   function handleSubmit(event: FormEvent<HTMLFormElement>) {
     event.preventDefault();
-    if (selectedId === null) return;
-    // flushSync: el foco solo puede ir a la corrección cuando ya está en el DOM.
-    flushSync(() => onAnswer(selectedId));
-    feedbackRef.current?.focus();
+    if (selectedId !== null) onSubmit();
   }
 
   return (
-    <div className="mt-5">
-      <form onSubmit={handleSubmit}>
-        <fieldset disabled={isAnswered}>
-          <legend className="text-lg">{step.question}</legend>
-          <div className="mt-3 space-y-1">
-            {step.options.map((option) => {
-              const note = isAnswered
-                ? optionNote(step, option.id, prediction.optionId)
-                : null;
-              return (
-                <label
-                  key={option.id}
-                  className={`flex min-h-11 items-start gap-3 py-2 ${
-                    isAnswered ? "" : "cursor-pointer hover:bg-paper-deep"
-                  }`}
-                >
-                  <input
-                    type="radio"
-                    name={`prediction-${step.id}`}
-                    value={option.id}
-                    checked={checkedId === option.id}
-                    onChange={() => setSelectedId(option.id)}
-                    className="mt-1.5 size-4 shrink-0 accent-prussian"
-                  />
-                  <span>
-                    {option.label}
-                    {note && (
-                      <span className="block text-ink-soft italic">{note}</span>
-                    )}
-                  </span>
-                </label>
-              );
-            })}
-          </div>
-        </fieldset>
-        {!isAnswered && (
-          <button
-            type="submit"
-            disabled={selectedId === null}
-            className="mt-3 min-h-11 cursor-pointer bg-prussian px-5 text-paper disabled:cursor-not-allowed disabled:bg-paper-deep disabled:text-ink-soft"
-          >
-            Comprobar mi predicción
-          </button>
-        )}
-      </form>
-      {isAnswered && (
-        <Feedback
-          ref={feedbackRef}
-          step={step}
-          optionId={prediction.optionId}
-        />
-      )}
-    </div>
+    // El botón de enviar vive en la barra de acciones, enlazado por `form`.
+    <form id={PREDICTION_FORM_ID} onSubmit={handleSubmit} className="mt-3">
+      <fieldset>
+        <legend className="text-lg leading-snug">{step.question}</legend>
+        <div className="mt-3 space-y-2">
+          {step.options.map((option) => (
+            <label
+              key={option.id}
+              className="flex min-h-12 cursor-pointer items-start gap-3 rounded-md border border-rule p-3 leading-snug transition-colors duration-150 hover:border-ink has-checked:border-prussian has-checked:bg-paper-deep"
+            >
+              <input
+                type="radio"
+                name={`prediction-${step.id}`}
+                value={option.id}
+                checked={selectedId === option.id}
+                onChange={() => onSelect(option.id)}
+                className="mt-1 size-4 shrink-0 accent-prussian"
+              />
+              <span>{option.label}</span>
+            </label>
+          ))}
+        </div>
+      </fieldset>
+    </form>
   );
 }

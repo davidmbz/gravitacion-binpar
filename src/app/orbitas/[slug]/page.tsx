@@ -1,6 +1,5 @@
 import type { Metadata } from "next";
 import { notFound } from "next/navigation";
-import { GalleryLink } from "@/features/gallery/gallery-link";
 import { OrbitFigure } from "@/features/gallery/orbit-figure";
 import { OrbitPlayer } from "@/features/gallery/orbit-player";
 import { buildTrajectory } from "@/features/gallery/trajectory";
@@ -36,48 +35,57 @@ export default async function OrbitPage({
   if (!orbit) notFound();
 
   const samples = sampleOrbit(orbit);
-  const trajectory = buildTrajectory(samples, DETAIL_MIN_STEP);
+  const trajectory = buildTrajectory(
+    samples,
+    DETAIL_MIN_STEP,
+    orbit.curve === "shared" ? 1 / 3 : 1,
+  );
   const number = (value: number, digits: number) =>
     value.toLocaleString("es-ES", { maximumFractionDigits: digits });
 
   return (
-    <article className="mx-auto max-w-6xl px-4 py-6 sm:px-8 sm:py-8">
-      <GalleryLink className="inline-block py-2">
-        Volver a la galería
-      </GalleryLink>
-      <h1 className="mt-3 text-3xl sm:text-4xl">{orbit.name}</h1>
-
-      <div className="mt-6 grid gap-8 lg:grid-cols-[minmax(0,3fr)_minmax(0,2fr)]">
-        <div className="lg:sticky lg:top-6 lg:self-start">
-          <OrbitPlayer
-            slug={orbit.slug}
-            frame={trajectory.frame}
-            name={orbit.name}
-          >
-            <OrbitFigure
-              trajectory={trajectory}
-              tone="pigment"
-              label={`Trayectoria de los tres cuerpos en ${orbit.name}. ${orbit.summary}`}
-            />
-          </OrbitPlayer>
-        </div>
-
-        <div>
-          <p className="text-lg">{orbit.summary}</p>
-
-          <dl className="mt-6 grid grid-cols-[auto_1fr] gap-x-6 gap-y-1">
-            <dt className="italic text-ink-soft">Periodo</dt>
-            <dd>{number(orbit.period, 4)}</dd>
-            <dt className="italic text-ink-soft">Energía total</dt>
-            <dd>{number(totalEnergy(orbit.initialState), 4)}</dd>
-            <dt className="italic text-ink-soft">Mayor acercamiento</dt>
-            <dd>{number(closestApproach(samples), 3)}</dd>
+    <OrbitPlayer
+      slug={orbit.slug}
+      frame={trajectory.frame}
+      name={orbit.name}
+      figure={
+        <OrbitFigure
+          trajectory={trajectory}
+          tone="pigment"
+          label={`Trayectoria de los tres cuerpos en ${orbit.name}. ${orbit.summary}`}
+        />
+      }
+      about={
+        <>
+          <p className="text-lg leading-snug">{orbit.summary}</p>
+          <dl className="mt-4 grid grid-cols-3 gap-2">
+            <div>
+              <dt className="text-ink-soft">Periodo</dt>
+              <dd className="text-xl">{number(orbit.period, 2)}</dd>
+            </div>
+            <div>
+              <dt className="text-ink-soft">Energía</dt>
+              <dd className="text-xl">
+                {number(totalEnergy(orbit.initialState), 2)}
+              </dd>
+            </div>
+            <div>
+              <dt className="text-ink-soft">Mínima</dt>
+              <dd className="text-xl">{number(closestApproach(samples), 3)}</dd>
+            </div>
           </dl>
-          <p className="mt-2 text-ink-soft">
-            En unidades con G = 1 y masas iguales a 1.
+          <p className="mt-3 text-ink-soft">
+            Mínima es la menor distancia entre dos cuerpos. Todo va en unidades
+            con G = 1 y masas iguales a 1.
           </p>
-
-          <h2 className="mt-8 text-xl">Lo que esta animación no es</h2>
+          <p className="mt-4">
+            Fuente: <a href={orbit.source.url}>{orbit.source.label}</a>
+          </p>
+        </>
+      }
+      limits={
+        <>
+          <h2 className="text-xl">Lo que esta animación no es</h2>
           <p className="mt-2">
             No es una simulación infinita: se calcula un periodo al abrir la
             página y se repite en bucle. Tras ese periodo, los cuerpos quedan a
@@ -85,13 +93,10 @@ export default async function OrbitPage({
             <ScientificNumber value={positionClosure(samples)} /> del punto de
             partida.
           </p>
-          <p className="mt-2">{orbit.limitation}</p>
-          <p className="mt-3">
-            Fuente: <a href={orbit.source.url}>{orbit.source.label}</a>
-          </p>
-        </div>
-      </div>
-    </article>
+          <p className="mt-3">{orbit.limitation}</p>
+        </>
+      }
+    />
   );
 }
 

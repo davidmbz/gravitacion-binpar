@@ -4,6 +4,7 @@
 @theme {
   --color-paper: #eef0e8;
   --color-paper-deep: #e1e5da;
+  --color-stage: #f6f7f1;
   --color-ink: #1b2233;
   --color-ink-soft: #4a5263;
   --color-rule: #b9bfb2;
@@ -42,5 +43,88 @@
   :focus-visible {
     outline: 3px solid var(--color-prussian);
     outline-offset: 2px;
+  }
+}
+
+@layer components {
+  /* La cabecera mide lo mismo en todas las rutas: las pantallas restan su alto. */
+  .app-header {
+    --header-height: calc(3rem + env(safe-area-inset-top));
+    height: var(--header-height);
+    padding-top: env(safe-area-inset-top);
+    flex: none;
+  }
+
+  /*
+   * Pantalla completa sin overflow oculto. El alto mínimo hace que una ventana
+   * baja o un zoom alto recuperen el scroll normal de la página, sin perder nada.
+   * --app-height solo existe en móvil con teclado: ver use-viewport-height.
+   */
+  .app-screen {
+    height: calc(var(--app-height, 100dvh) - 3rem - env(safe-area-inset-top));
+    min-height: 30rem;
+  }
+
+  @media (min-width: 64rem) {
+    .app-screen {
+      min-height: 38rem;
+    }
+  }
+
+  /* La galería solo llena la pantalla en escritorio: en móvil hace scroll. */
+  @media (min-width: 64rem) {
+    .app-screen-desktop {
+      height: calc(100dvh - 3rem - env(safe-area-inset-top));
+      min-height: 38rem;
+    }
+  }
+
+  /* Al escribir en el móvil, el teclado manda: la mesa cede su sitio al campo. */
+  @media (max-width: 63.99rem) {
+    .app-screen:has(textarea:focus) {
+      min-height: 0;
+    }
+
+    .app-screen:has(textarea:focus) .app-stage,
+    .app-screen:has(textarea:focus) .app-actions {
+      display: none;
+    }
+  }
+
+  /* Retícula tenue: da escala a la mesa sin competir con ella. */
+  .stage-grid {
+    background-color: var(--color-stage);
+    background-image:
+      linear-gradient(to right, #1b22330d 1px, transparent 1px),
+      linear-gradient(to bottom, #1b22330d 1px, transparent 1px);
+    background-size: 2.5rem 2.5rem;
+  }
+
+  .safe-bottom {
+    padding-bottom: max(0.75rem, env(safe-area-inset-bottom));
+  }
+
+  @media (prefers-reduced-motion: no-preference) {
+    .phase-in {
+      animation: phase-in 200ms ease-out;
+    }
+
+    .pop-in {
+      animation: pop-in 260ms cubic-bezier(0.215, 0.61, 0.355, 1);
+    }
+  }
+}
+
+@keyframes phase-in {
+  from {
+    opacity: 0;
+    transform: translateY(6px);
+  }
+}
+
+@keyframes pop-in {
+  from {
+    opacity: 0;
+    transform: scale(0.9);
   }
 }

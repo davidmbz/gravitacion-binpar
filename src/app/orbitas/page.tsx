@@ -3,56 +3,82 @@ import { Suspense } from "react";
 import { FilterableGallery } from "@/features/gallery/filterable-gallery";
 import { OrbitCardLink } from "@/features/gallery/orbit-card-link";
 import { OrbitFigure } from "@/features/gallery/orbit-figure";
+import { GalleryControls } from "@/features/gallery/gallery-controls";
 import { OrbitGrid, type GalleryCard } from "@/features/gallery/orbit-grid";
+import { GALLERY_TILES, isWideFrame } from "@/features/gallery/tiles";
 import { buildTrajectory } from "@/features/gallery/trajectory";
-import { ORBITS } from "@/lib/physics/orbits";
+import { findOrbit } from "@/lib/physics/orbits";
 import { sampleOrbit } from "@/lib/physics/sampling";
 
 export const metadata: Metadata = { title: "Órbitas" };
 
-const PLATE_NUMERALS = ["I", "II", "III", "IV", "V", "VI"];
-
-/** Separación mínima entre puntos del trazado: ~2 px en una tarjeta de 300 px. */
+/** Separación mínima entre puntos del trazado: ~2 px en una lámina de 300 px. */
 const CARD_MIN_STEP = 0.02;
 
-export default function GalleryPage() {
-  const cards: GalleryCard[] = ORBITS.map((orbit, index) => {
-    const trajectory = buildTrajectory(sampleOrbit(orbit), CARD_MIN_STEP);
+function buildCards(): GalleryCard[] {
+  return GALLERY_TILES.map(({ slug, teaser }) => {
+    const orbit = findOrbit(slug);
+    if (!orbit) throw new Error(`Órbita desconocida: ${slug}`);
+
+    const trajectory = buildTrajectory(
+      sampleOrbit(orbit),
+      CARD_MIN_STEP,
+      orbit.curve === "shared" ? 1 / 3 : 1,
+    );
     return {
-      slug: orbit.slug,
+      slug,
       curve: orbit.curve,
+      isWide: isWideFrame(trajectory.frame),
       content: (
         <OrbitCardLink
-          slug={orbit.slug}
+          slug={slug}
           frame={trajectory.frame}
           figure={
             <OrbitFigure
               trajectory={trajectory}
+              tone="vivid"
               label={`Trayectoria de ${orbit.name}`}
             />
           }
         >
-          <p className="mt-2 text-ink-soft italic">
-            Lámina {PLATE_NUMERALS[index]}
-          </p>
-          <h2 className="text-xl underline decoration-transparent underline-offset-4 group-hover:decoration-current">
-            {orbit.name}
-          </h2>
+          <h2 className="text-xl leading-tight lg:text-2xl">{orbit.name}</h2>
+          <p className="leading-snug text-ink-soft lg:min-h-[2lh]">{teaser}</p>
         </OrbitCardLink>
       ),
     };
   });
+}
+
+export default function GalleryPage() {
+  const cards = buildCards();
+  const title = (
+    <div>
+      <h1 className="text-3xl leading-tight">Seis órbitas de tres cuerpos</h1>
+      <p className="mt-1 text-ink-soft">
+        Tres masas iguales casi nunca repiten su camino. Estas sí, sobre el
+        papel.
+      </p>
+    </div>
+  );
 
   return (
-    <div className="mx-auto max-w-6xl px-4 py-8 sm:px-8">
-      <h1 className="text-3xl sm:text-4xl">Seis órbitas de tres cuerpos</h1>
-      <p className="mt-3 max-w-prose">
-        Tres masas iguales casi nunca repiten su camino. Estas son seis de las
-        pocas configuraciones conocidas que sí lo hacen, al menos sobre el
-        papel. Abre una para verla en movimiento.
-      </p>
-      <Suspense fallback={<OrbitGrid cards={cards} />}>
-        <FilterableGallery cards={cards} />
+    <div className="app-screen-desktop safe-bottom flex flex-col gap-3 px-4 pt-3 lg:px-6">
+      <Suspense
+        fallback={
+          <>
+            <div className="flex flex-wrap items-end justify-between gap-x-8 gap-y-3">
+              {title}
+              <GalleryControls
+                filter="all"
+                visibleCount={cards.length}
+                totalCount={cards.length}
+              />
+            </div>
+            <OrbitGrid cards={cards} />
+          </>
+        }
+      >
+        <FilterableGallery title={title} cards={cards} />
       </Suspense>
     </div>
   );

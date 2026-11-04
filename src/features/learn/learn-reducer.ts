@@ -6,10 +6,14 @@ import { STEPS, type StepId } from "./steps";
 export type PredictionState =
   { status: "pending" } | { status: "answered"; optionId: string };
 
+/** Solo una fase a la vez. `closing` es el cierre, tras el último paso. */
+export type LearnPhase = "predict" | "result" | "explore" | "closing";
+
 export type LearnState = {
   scene: Scene;
   launch: Launch;
   stepIndex: number;
+  phase: LearnPhase;
   predictions: Record<StepId, PredictionState>;
 };
 
@@ -17,13 +21,17 @@ export type LearnAction =
   | { type: "setScene"; scene: Scene }
   | { type: "setLaunch"; launch: Launch }
   | { type: "answerPrediction"; optionId: string }
+  | { type: "startExploring" }
   | { type: "nextStep" }
-  | { type: "previousStep" };
+  | { type: "previousStep" }
+  | { type: "finish" }
+  | { type: "review" };
 
 export const INITIAL_LEARN_STATE: LearnState = {
   scene: INITIAL_SCENE,
   launch: INITIAL_LAUNCH,
   stepIndex: 0,
+  phase: "predict",
   predictions: {
     attraction: { status: "pending" },
     mass: { status: "pending" },
@@ -54,6 +62,22 @@ export function areForcesVisible(state: LearnState): boolean {
   return state.stepIndex > 0 || currentPrediction(state).status === "answered";
 }
 
+/** Lanzamiento que se muestra como ejemplo al revelar el último paso. */
+export const EXAMPLE_LAUNCH: Launch = { speed: 1, angle: 0 };
+
+/** Al llegar a un paso ya respondido no se repite la predicción. */
+function enterStep(state: LearnState, stepIndex: number): LearnState {
+  const isAnswered =
+    state.predictions[STEPS[stepIndex].id].status === "answered";
+  return {
+    ...state,
+    scene: INITIAL_SCENE,
+    launch: INITIAL_LAUNCH,
+    stepIndex,
+    phase: isAnswered ? "explore" : "predict",
+  };
+}
+
 export function learnReducer(
   state: LearnState,
   action: LearnAction,
@@ -67,38 +91,53 @@ export function learnReducer(
 
     case "answerPrediction": {
       if (currentPrediction(state).status === "answered") return state;
-      const stepId = STEPS[state.stepIndex].id;
+      const step = STEPS[state.stepIndex];
       return {
         ...state,
+        phase: "result",
+        // El resultado se ve en la mesa: se aplica el cambio por el que se preguntó.
+        scene: step.demonstration ?? state.scene,
+        launch: step.id === "orbit" ? EXAMPLE_LAUNCH : state.launch,
         predictions: {
           ...state.predictions,
-          [stepId]: { status: "answered", optionId: action.optionId },
+          [step.id]: { status: "answered", optionId: action.optionId },
         },
       };
     }
 
-    // Cada paso arranca en la escena inicial para que su pregunta y el ×1 de
-    // referencia signifiquen lo mismo, venga la persona de donde venga.
+    // Explorar arranca en la escena inicial para que ×1 signifique lo mismo.
+    case "startExploring":
+      if (state.phase !== "result") return state;
+      return {
+        ...state,
+        phase: "explore",
+        scene: INITIAL_SCENE,
+        launch: INITIAL_LAUNCH,
+      };
+
     case "nextStep": {
       const isLastStep = state.stepIndex === STEPS.length - 1;
       if (isLastStep || currentPrediction(state).status === "pending") {
         return state;
       }
-      return {
-        ...state,
-        scene: INITIAL_SCENE,
-        launch: INITIAL_LAUNCH,
-        stepIndex: state.stepIndex + 1,
-      };
+      return enterStep(state, state.stepIndex + 1);
     }
 
     case "previousStep":
       if (state.stepIndex === 0) return state;
-      return {
-        ...state,
-        scene: INITIAL_SCENE,
-        launch: INITIAL_LAUNCH,
-        stepIndex: state.stepIndex - 1,
-      };
+      return enterStep(state, state.stepIndex - 1);
+
+    case "finish": {
+      const isLastStep = state.stepIndex === STEPS.length - 1;
+      if (!isLastStep || currentPrediction(state).status === "pending") {
+        return state;
+      }
+      return { ...state, phase: "closing" };
+    }
+
+    case "review":
+      return state.phase === "closing"
+        ? enterStep(state, state.stepIndex)
+        : state;
   }
 }

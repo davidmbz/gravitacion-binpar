@@ -7,20 +7,23 @@ const STATUS_LABELS = {
 
 export function LearnerSummary({ profile }: { profile: LearnerProfile }) {
   const { concepts, misconceptions } = profile;
-
-  if (concepts.length === 0) return null;
+  const demonstrated = concepts.filter(
+    ({ status }) => status === "demonstrated",
+  ).length;
 
   return (
-    <section
-      aria-labelledby="profile-title"
-      className="border-t border-rule pt-4"
-    >
-      <h3 id="profile-title" className="text-xl">
-        Lo que has demostrado
-      </h3>
+    <>
+      <p className="mt-2 text-lg">
+        Has acertado {demonstrated} de {concepts.length} predicciones.
+      </p>
       <ul className="mt-3 space-y-2">
         {concepts.map(({ stepId, concept, status }) => (
-          <li key={stepId}>
+          <li
+            key={stepId}
+            className={`border-l-2 pl-3 leading-snug ${
+              status === "demonstrated" ? "border-verdigris" : "border-cinnabar"
+            }`}
+          >
             {concept}
             <span
               className={`block italic ${
@@ -34,7 +37,7 @@ export function LearnerSummary({ profile }: { profile: LearnerProfile }) {
       </ul>
       {misconceptions.length > 0 && (
         <>
-          <p className="mt-3">Para repasar con el tutor:</p>
+          <p className="mt-4">Para repasar con el tutor:</p>
           <ul className="mt-1 list-disc space-y-1 pl-5 text-ink-soft">
             {misconceptions.map((misconception) => (
               <li key={misconception}>{misconception}</li>
@@ -42,9 +45,9 @@ export function LearnerSummary({ profile }: { profile: LearnerProfile }) {
           </ul>
         </>
       )}
-      <p className="mt-3 text-ink-soft">
+      <p className="mt-4 text-ink-soft">
         Se basa en una pregunta por concepto, así que es una pista, no una nota.
       </p>
-    </section>
+    </>
   );
 }

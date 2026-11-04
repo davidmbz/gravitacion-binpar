@@ -20,25 +20,6 @@ test("la acción principal de la portada tiene texto legible", async ({
   await expect(action).toHaveCSS("background-color", "rgb(31, 78, 121)");
 });
 
-test.describe("Aprende en móvil", () => {
-  test.use({ viewport: { width: 375, height: 667 } });
-
-  test("la mesa y la corrección se ven a la vez al responder", async ({
-    page,
-  }) => {
-    await page.goto("/aprende");
-    await page
-      .getByRole("radio", { name: "Son iguales y van en sentidos opuestos" })
-      .check();
-    await page.getByRole("button", { name: "Comprobar mi predicción" }).click();
-
-    await expect(page.getByText("Has acertado")).toBeInViewport();
-    await expect(page.getByRole("img", { name: /Cuerpo A/ })).toBeInViewport({
-      ratio: 1,
-    });
-  });
-});
-
 test("cada órbita publica su imagen para compartir", async ({
   page,
   request,

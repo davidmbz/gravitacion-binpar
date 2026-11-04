@@ -2,13 +2,14 @@ import { INITIAL_LAUNCH } from "@/lib/physics/moon-launch";
 import { STEPS } from "./steps";
 import { describe, expect, it } from "vitest";
 import {
+  EXAMPLE_LAUNCH,
   areForcesVisible,
   currentPrediction,
   INITIAL_LEARN_STATE,
   learnReducer,
   type LearnState,
 } from "./learn-reducer";
-import { INITIAL_SCENE } from "./scene";
+import { INITIAL_SCENE, relativeForce } from "./scene";
 
 const answer = (state: LearnState, optionId = "cualquiera") =>
   learnReducer(state, { type: "answerPrediction", optionId });
@@ -67,6 +68,62 @@ describe("learnReducer", () => {
     });
     expect(state.launch).toEqual(launch);
     expect(next(state).launch).toEqual(INITIAL_LAUNCH);
+  });
+
+  it("empieza prediciendo y responder lleva al resultado", () => {
+    expect(INITIAL_LEARN_STATE.phase).toBe("predict");
+    expect(answer(INITIAL_LEARN_STATE).phase).toBe("result");
+  });
+
+  it("aplica en la mesa el cambio por el que se preguntó", () => {
+    const massStep = next(answer(INITIAL_LEARN_STATE));
+    const state = answer(massStep, "doubles");
+    expect(relativeForce(state.scene)).toBe(2);
+  });
+
+  it("la distancia se demuestra con un cuarto de la fuerza", () => {
+    const distanceStep = next(answer(next(answer(INITIAL_LEARN_STATE))));
+    expect(relativeForce(answer(distanceStep, "quarter").scene)).toBe(0.25);
+  });
+
+  it("el último paso enseña un lanzamiento de ejemplo", () => {
+    const orbitStep = next(
+      answer(next(answer(next(answer(INITIAL_LEARN_STATE))))),
+    );
+    expect(answer(orbitStep).launch).toEqual(EXAMPLE_LAUNCH);
+  });
+
+  it("explorar vuelve a la escena inicial", () => {
+    const massStep = next(answer(INITIAL_LEARN_STATE));
+    const state = learnReducer(answer(massStep), { type: "startExploring" });
+    expect(state.phase).toBe("explore");
+    expect(state.scene).toEqual(INITIAL_SCENE);
+  });
+
+  it("no se puede explorar antes de ver el resultado", () => {
+    const state = learnReducer(INITIAL_LEARN_STATE, { type: "startExploring" });
+    expect(state).toBe(INITIAL_LEARN_STATE);
+  });
+
+  it("volver a un paso ya respondido no repite la predicción", () => {
+    const state = previous(next(answer(INITIAL_LEARN_STATE)));
+    expect(state.phase).toBe("explore");
+  });
+
+  it("el paso siguiente sin responder empieza prediciendo", () => {
+    expect(next(answer(INITIAL_LEARN_STATE)).phase).toBe("predict");
+  });
+
+  it("el cierre solo llega tras responder el último paso", () => {
+    expect(
+      learnReducer(answer(INITIAL_LEARN_STATE), { type: "finish" }).phase,
+    ).toBe("result");
+    const last = answer(
+      next(answer(next(answer(next(answer(INITIAL_LEARN_STATE)))))),
+    );
+    const closing = learnReducer(last, { type: "finish" });
+    expect(closing.phase).toBe("closing");
+    expect(learnReducer(closing, { type: "review" }).phase).toBe("explore");
   });
 
   it("no pasa del último paso", () => {

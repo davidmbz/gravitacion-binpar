@@ -18,6 +18,7 @@ export default function HomePage() {
       <OrbitHero slug={orbit.slug} frame={trajectory.frame}>
         <OrbitFigure
           trajectory={trajectory}
+          tone="ink"
           label="Tres cuerpos iguales que se persiguen por una misma curva en forma de ocho"
         />
       </OrbitHero>

@@ -4,17 +4,20 @@ import { viewBoxOf, type Trajectory } from "./trajectory";
 interface OrbitFigureProps {
   trajectory: Trajectory;
   label: string;
-  /** Tinta para las láminas; pigmentos para distinguir cada cuerpo. */
-  tone?: "ink" | "pigment";
+  tone: keyof typeof TONES;
 }
 
+/** La portada va en tinta; las láminas y el detalle, con el color de cada cuerpo. */
+const TONES = {
+  ink: { colored: false, opacity: 1, width: 1 },
+  pigment: { colored: true, opacity: 0.75, width: 1.75 },
+  vivid: { colored: true, opacity: 0.9, width: 1.5 },
+};
+
 /** Trayectoria estática. Se genera en el servidor y se ve sin JavaScript. */
-export function OrbitFigure({
-  trajectory,
-  label,
-  tone = "ink",
-}: OrbitFigureProps) {
+export function OrbitFigure({ trajectory, label, tone }: OrbitFigureProps) {
   const { frame, paths } = trajectory;
+  const { colored, opacity, width } = TONES[tone];
 
   return (
     <svg
@@ -28,9 +31,9 @@ export function OrbitFigure({
           key={path}
           d={path}
           fill="none"
-          stroke={tone === "pigment" ? BODY_COLORS[body] : "currentColor"}
-          strokeOpacity={tone === "pigment" ? 0.55 : 1}
-          strokeWidth={tone === "pigment" ? 1.25 : 1}
+          stroke={colored ? BODY_COLORS[body] : "currentColor"}
+          strokeOpacity={opacity}
+          strokeWidth={width}
           strokeLinejoin="round"
           vectorEffect="non-scaling-stroke"
         />

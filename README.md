@@ -6,9 +6,9 @@ Aplicación web para entender la ley de gravitación de Newton sin saber física
 
 ## Qué incluye
 
-* **Aprende (`/aprende`):** dos cuerpos con masas y distancia ajustables, flechas de fuerza y cuatro pasos: atracción mutua, masa, distancia y caer sin llegar. En cada paso predices antes de ver el resultado, y la app corrige tu respuesta.
+* **Aprende (`/aprende`):** dos cuerpos con masas y distancia ajustables, flechas de fuerza y cuatro pasos: atracción mutua, masa, distancia y caer sin llegar. Cada paso va por fases: predices, ves el resultado en la mesa y exploras con los controles.
 * **Lanzar una luna:** en el último paso eliges velocidad y ángulo, y ves si orbita, choca o escapa.
-* **Lo que has demostrado:** un perfil calculado a partir de tus respuestas, con los conceptos acertados y los errores concretos.
+* **Lo que has demostrado:** el cierre del recorrido, con la fórmula completa y un perfil calculado a partir de tus respuestas.
 * **Tutor:** un modelo de lenguaje explica el porqué de tus dudas con ese perfil a la vista, y puede mover la mesa para enseñártelo. Ofrece preguntas sugeridas que cambian según tu respuesta.
 * **Órbitas (`/orbitas`):** Lagrange, Figura de ocho, Butterfly I, Goggles, Moth I y Yin-Yang I. Cada una tiene URL propia, imagen para compartir, animación y controles de reproducción. Al volver a la galería se conservan el filtro, el scroll y el foco.
 * **Perturbar una órbita:** en el detalle, compara la órbita con una copia desplazada una milésima y mide cuánto se separan.
@@ -61,6 +61,7 @@ El registro completo, con alternativas y costes, está en [docs/decisiones.md](d
 * **Un periodo calculado, reproducido en bucle.** Estas órbitas son inestables: integrarlas sin límite acaba rompiéndolas. Se muestrean 4096 instantes uniformes y se interpola con Hermite. El bucle de pintado nunca decide un paso físico.
 * **Galería sin bucles compitiendo.** Seis SVG generados en el servidor. Solo se anima la tarjeta con ratón o foco de teclado, y un único bucle garantiza que no haya dos a la vez.
 * **Estado al volver.** El filtro vive en la URL, el scroll lo restaura el navegador y el enlace de vuelta usa el historial. No depende de Activity, que solo guarda tres rutas.
+* **Pantalla completa sin ocultar nada.** Aprende, galería y detalle llenan el alto disponible sin `overflow: hidden`. Con un alto mínimo, una ventana baja o un zoom del 200 % recuperan el scroll normal.
 * **Tutor en el servidor.** El modelo solo opera la app con `configurar_escena`, validada con Zod. La corrección de las predicciones nunca depende del modelo.
 * **Perfil derivado.** Es una función pura de las respuestas. Al servidor solo llegan identificadores validados, y él lo recalcula: el cliente no puede escribir en el prompt.
 * **Perturbación honesta.** Desplaza dos cuerpos en sentidos opuestos para conservar el centro de masas. Original y perturbada se integran igual, durante el mismo tiempo.
@@ -102,6 +103,8 @@ El alcance temático se pide en el prompt, y el texto de la persona se trata com
 * "Lo que has demostrado" se basa en una pregunta por concepto, sin reintento. Es una señal débil, y la interfaz lo dice.
 * La adaptación del tutor depende de que el modelo siga el prompt. El perfil sí es determinista.
 * El progreso de Aprende y la conversación no sobreviven a una recarga.
+* El teclado del móvil se ha simulado reduciendo la ventana, no en un teléfono real. En iOS, el ajuste depende de `visualViewport`. Al escribir en móvil, la mesa se oculta para dejar sitio al campo.
+* Al filtrar la galería en móvil puede quedar un hueco, porque el orden está pensado para las seis láminas.
 * Una órbita desconocida muestra la página de no encontrado con `noindex`. En Vercel responde 404, pero con `next start` local responde 200, porque el streaming ya ha enviado la cabecera.
 * Las imágenes para compartir usan la fuente por defecto de `ImageResponse`, no la de la web.
 * Solo se ha probado en Chromium, sin lector de pantalla real.

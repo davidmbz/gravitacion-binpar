@@ -51,6 +51,10 @@ export type Step = {
   /** Se muestra siempre tras responder, se haya acertado o no. */
   takeaway: string;
   invitation: string;
+  /** Lo que la mesa hace al revelar el resultado. Null si no cambia la escena. */
+  demonstration: { massA: number; massB: number; distance: number } | null;
+  /** Frase breve sobre la mesa, para los resultados que no son un múltiplo. */
+  resultNote: string | null;
   /** Preguntas para el tutor. Las de antes de responder no delatan el resultado. */
   tutorPrompts: { pending: readonly string[]; answered: readonly string[] };
 };
@@ -89,7 +93,9 @@ export const STEPS: readonly Step[] = [
     takeaway:
       "Es una sola atracción con dos extremos. Lo que cambia es el efecto: con la misma fuerza, el cuerpo de menos masa se mueve más. Por eso vemos caer la manzana y no vemos subir la Tierra.",
     invitation:
-      "Compruébalo: cambia las masas y la distancia. Las dos flechas crecen y menguan a la vez, y siempre miden lo mismo.",
+      "Cambia las masas y la distancia. Las dos flechas crecen y menguan a la vez, y siempre miden lo mismo.",
+    demonstration: null,
+    resultNote: "Misma fuerza, sentidos opuestos",
     tutorPrompts: {
       pending: [
         "¿Qué significa aquí la palabra fuerza?",
@@ -142,7 +148,9 @@ export const STEPS: readonly Step[] = [
     takeaway:
       "La fuerza es proporcional a cada masa: si una se multiplica por tres, la fuerza se multiplica por tres. Por eso, en la fórmula, las dos masas aparecen multiplicadas entre sí.",
     invitation:
-      "Compruébalo: sube A de 4 a 8 y mira el número. Después sube B de 2 a 4: la fuerza vuelve a duplicarse y llega a ×4.",
+      "Sube A de 4 a 8 y mira el número. Después sube B de 2 a 4: la fuerza vuelve a duplicarse y llega a ×4.",
+    demonstration: { massA: 8, massB: 2, distance: 4 },
+    resultNote: null,
     tutorPrompts: {
       pending: [
         "¿Qué es la masa? ¿Es lo mismo que el peso?",
@@ -194,7 +202,9 @@ export const STEPS: readonly Step[] = [
     takeaway:
       "Piensa en un espray de pintura. A doble distancia, la mancha es el doble de ancha y el doble de alta: la misma pintura se reparte en cuatro veces más superficie, y cada trozo recibe un cuarto. Con la gravedad pasa lo mismo. Por eso la distancia va al cuadrado.",
     invitation:
-      "Compruébalo: lleva la distancia de 4 a 8 y mira el número. Luego bájala a 2: a mitad de distancia, la fuerza es ×4.",
+      "Lleva la distancia de 4 a 8 y mira el número. Luego bájala a 2: a mitad de distancia, la fuerza es ×4.",
+    demonstration: { massA: 4, massB: 2, distance: 8 },
+    resultNote: null,
     tutorPrompts: {
       pending: [
         "¿Distancia entre qué puntos de los cuerpos?",
@@ -248,7 +258,9 @@ export const STEPS: readonly Step[] = [
     takeaway:
       "Una órbita es una caída que nunca llega. Con poca velocidad, la luna choca. Con la justa, cae alrededor del planeta. Con demasiada, la gravedad no la retiene y escapa.",
     invitation:
-      "Compruébalo: lanza con velocidad 0,7 y mira qué ocurre. Después prueba con 1 y con 1,5.",
+      "Lanza con velocidad 0,7 y mira qué ocurre. Después prueba con 1 y con 1,5.",
+    demonstration: null,
+    resultNote: null,
     tutorPrompts: {
       pending: [
         "¿Qué quiere decir que algo está en órbita?",
