@@ -21,6 +21,7 @@ import {
 import { SceneControls } from "./scene-controls";
 import { STEPS } from "./steps";
 import { TableCanvas } from "./table-canvas";
+import { TutorPanel } from "./tutor-panel";
 
 // Tiempo sin cambios antes de anunciar: arrastrar un control no debe leer cada valor.
 const ANNOUNCE_DELAY_MS = 800;
@@ -140,6 +141,15 @@ export function LearnExperience() {
         />
 
         <Formula predictions={state.predictions} currentStepId={step.id} />
+
+        <TutorPanel
+          stepId={step.id}
+          answerId={
+            prediction.status === "answered" ? prediction.optionId : null
+          }
+          scene={state.scene}
+          onSceneChange={(scene) => dispatch({ type: "setScene", scene })}
+        />
 
         <nav
           aria-label="Pasos"

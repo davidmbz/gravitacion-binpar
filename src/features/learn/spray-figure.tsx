@@ -1,5 +1,5 @@
-// Geometría real: el segundo cuadrado está al doble de distancia de la boquilla
-// y mide el doble de lado, así que las líneas del cono tocan las esquinas de ambos.
+// Geometría real: el centro del segundo cuadrado está al doble de distancia de
+// la boquilla y su lado mide el doble, así que el cono toca el borde de ambos.
 export function SprayFigure() {
   return (
     <figure className="mt-4">
