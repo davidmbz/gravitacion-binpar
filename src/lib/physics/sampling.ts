@@ -67,17 +67,6 @@ export function positionsAt(
   }
 }
 
-/** Mayor coordenada absoluta alcanzada: sirve para encuadrar la órbita. */
-export function maxExtent({ states, intervals }: OrbitSamples): number {
-  let extent = 0;
-  for (let sample = 0; sample <= intervals; sample++) {
-    for (let i = 0; i < POSITION_SIZE; i++) {
-      extent = Math.max(extent, Math.abs(states[sample * STATE_SIZE + i]));
-    }
-  }
-  return extent;
-}
-
 /** Menor distancia entre dos cuerpos en los instantes muestreados. */
 export function closestApproach({ states, intervals }: OrbitSamples): number {
   let closest = Infinity;

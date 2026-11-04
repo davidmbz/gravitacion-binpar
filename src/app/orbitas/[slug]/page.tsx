@@ -42,20 +42,25 @@ export default async function OrbitPage({
 
   return (
     <article className="mx-auto max-w-6xl px-4 py-6 sm:px-8 sm:py-8">
-      <GalleryLink>Volver a la galería</GalleryLink>
+      <GalleryLink className="inline-block py-2">
+        Volver a la galería
+      </GalleryLink>
       <h1 className="mt-3 text-3xl sm:text-4xl">{orbit.name}</h1>
 
       <div className="mt-6 grid gap-8 lg:grid-cols-[minmax(0,3fr)_minmax(0,2fr)]">
-        <OrbitPlayer
-          slug={orbit.slug}
-          halfSize={trajectory.halfSize}
-          name={orbit.name}
-        >
-          <OrbitFigure
-            trajectory={trajectory}
-            label={`Trayectoria de los tres cuerpos en ${orbit.name}. ${orbit.summary}`}
-          />
-        </OrbitPlayer>
+        <div className="lg:sticky lg:top-6 lg:self-start">
+          <OrbitPlayer
+            slug={orbit.slug}
+            frame={trajectory.frame}
+            name={orbit.name}
+          >
+            <OrbitFigure
+              trajectory={trajectory}
+              tone="pigment"
+              label={`Trayectoria de los tres cuerpos en ${orbit.name}. ${orbit.summary}`}
+            />
+          </OrbitPlayer>
+        </div>
 
         <div>
           <p className="text-lg">{orbit.summary}</p>

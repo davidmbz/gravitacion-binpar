@@ -54,3 +54,17 @@ Una entrada por decisión relevante. Este registro alimenta el README y la prepa
 * Alternativas descartadas: streaming, que añade protocolo y estados para respuestas de unas 90 palabras. Ejecutar herramientas en el cliente, que permitiría falsificar resultados. Tool Runner del SDK, que es beta y oculta el bucle.
 * Decisión: `messages.create` con un bucle propio de 2 vueltas como máximo. La segunda bloquea las herramientas con `tool_choice: none`. Una sola herramienta, `configurar_escena`, validada con Zod. Con la predicción pendiente no se ofrece, porque revelaría el resultado. El cliente envía identificadores, y el servidor construye el bloque de estado.
 * Coste: la persona espera la respuesta completa. Los límites de frecuencia son por instancia. El historial llega del cliente, que podría falsificar turnos del tutor, aunque no el estado de la app.
+
+### Pintado compartido y un solo bucle en la galería
+
+* Contexto: portada, tarjetas y detalle dibujan lo mismo. La galería no debe tener seis bucles compitiendo.
+* Alternativas descartadas: un canvas por tarjeta siempre animado, que gasta batería y distrae. Un contexto de React para coordinar tarjetas, que renderiza de más para algo que no es estado de interfaz.
+* Decisión: `paint-orbit.ts` concentra el dibujo y el reloj. `card-animator.ts` guarda una sola animación activa: empezar una tarjeta detiene la anterior. Solo se anima con ratón o foco de teclado, nunca con `prefers-reduced-motion`.
+* Coste: el módulo tiene estado global. La primera vez que se pasa por una tarjeta se integra su órbita en el hilo principal.
+
+### Encuadre ajustado a cada órbita
+
+* Contexto: un cuadrado centrado desperdiciaba espacio en órbitas alargadas como Butterfly I.
+* Alternativas descartadas: ajustar el lienzo exactamente a la órbita, que dejaría una tira de poca altura.
+* Decisión: el encuadre sale de los límites reales de la órbita. La proporción del lienzo se limita entre 1 y 2, y SVG y canvas usan el mismo encaje centrado.
+* Coste: las órbitas más alargadas dejan aire arriba y abajo.

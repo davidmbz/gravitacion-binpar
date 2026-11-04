@@ -19,7 +19,7 @@ function Feedback({ step, optionId, ref }: FeedbackProps) {
     <div
       ref={ref}
       tabIndex={-1}
-      className={`mt-5 scroll-mt-72 border-l-2 pl-4 lg:scroll-mt-6 ${
+      className={`mt-5 scroll-mt-60 border-l-2 pl-4 lg:scroll-mt-6 ${
         isCorrect ? "border-verdigris" : "border-cinnabar"
       }`}
     >
@@ -32,6 +32,11 @@ function Feedback({ step, optionId, ref }: FeedbackProps) {
       <p className="mt-3">{step.takeaway}</p>
       {step.id === "distance" && <SprayFigure />}
       <p className="mt-3 italic">{step.invitation}</p>
+      <p className="mt-3">
+        <a href="#tutor-title" className="inline-block py-2">
+          ¿Algo no te encaja? Pregunta al tutor
+        </a>
+      </p>
     </div>
   );
 }

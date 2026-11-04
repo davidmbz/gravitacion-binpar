@@ -6,8 +6,8 @@ import { GalleryLink } from "@/features/gallery/gallery-link";
 
 function linkClass(isCurrent: boolean): string {
   return isCurrent
-    ? "text-ink underline decoration-cinnabar decoration-2"
-    : "text-ink no-underline hover:underline";
+    ? "inline-block py-2 text-ink underline decoration-cinnabar decoration-2"
+    : "inline-block py-2 text-ink no-underline hover:underline";
 }
 
 export function SiteNav() {

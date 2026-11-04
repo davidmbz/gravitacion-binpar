@@ -81,7 +81,7 @@ export function LearnExperience() {
           ) : (
             "Las flechas de fuerza aparecen al responder."
           )}
-          <span className="block text-sm text-ink-soft italic lg:mt-1">
+          <span className="hidden text-sm text-ink-soft italic lg:mt-1 lg:block">
             Fig. 1. Al inicio: masas {INITIAL_SCENE.massA} y{" "}
             {INITIAL_SCENE.massB}, distancia {INITIAL_SCENE.distance}.
           </span>
@@ -119,7 +119,7 @@ export function LearnExperience() {
             id="step-title"
             ref={headingRef}
             tabIndex={-1}
-            className="mt-4 scroll-mt-72 text-2xl sm:text-3xl lg:scroll-mt-6"
+            className="mt-4 scroll-mt-60 text-2xl sm:text-3xl lg:scroll-mt-6"
           >
             {step.title}
           </h2>
@@ -144,6 +144,9 @@ export function LearnExperience() {
 
         <TutorPanel
           stepId={step.id}
+          suggestions={
+            isPending ? step.tutorPrompts.pending : step.tutorPrompts.answered
+          }
           answerId={
             prediction.status === "answered" ? prediction.optionId : null
           }

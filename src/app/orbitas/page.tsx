@@ -16,26 +16,32 @@ const PLATE_NUMERALS = ["I", "II", "III", "IV", "V", "VI"];
 const CARD_MIN_STEP = 0.02;
 
 export default function GalleryPage() {
-  const cards: GalleryCard[] = ORBITS.map((orbit, index) => ({
-    slug: orbit.slug,
-    curve: orbit.curve,
-    content: (
-      <OrbitCardLink slug={orbit.slug}>
-        <div className="border border-rule bg-paper-deep/50 p-3 group-hover:border-ink">
-          <OrbitFigure
-            trajectory={buildTrajectory(sampleOrbit(orbit), CARD_MIN_STEP)}
-            label={`Trayectoria de ${orbit.name}`}
-          />
-        </div>
-        <p className="mt-2 italic text-ink-soft">
-          Lámina {PLATE_NUMERALS[index]}
-        </p>
-        <h2 className="text-xl underline decoration-transparent underline-offset-4 group-hover:decoration-current">
-          {orbit.name}
-        </h2>
-      </OrbitCardLink>
-    ),
-  }));
+  const cards: GalleryCard[] = ORBITS.map((orbit, index) => {
+    const trajectory = buildTrajectory(sampleOrbit(orbit), CARD_MIN_STEP);
+    return {
+      slug: orbit.slug,
+      curve: orbit.curve,
+      content: (
+        <OrbitCardLink
+          slug={orbit.slug}
+          frame={trajectory.frame}
+          figure={
+            <OrbitFigure
+              trajectory={trajectory}
+              label={`Trayectoria de ${orbit.name}`}
+            />
+          }
+        >
+          <p className="mt-2 text-ink-soft italic">
+            Lámina {PLATE_NUMERALS[index]}
+          </p>
+          <h2 className="text-xl underline decoration-transparent underline-offset-4 group-hover:decoration-current">
+            {orbit.name}
+          </h2>
+        </OrbitCardLink>
+      ),
+    };
+  });
 
   return (
     <div className="mx-auto max-w-6xl px-4 py-8 sm:px-8">

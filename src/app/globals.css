@@ -14,30 +14,33 @@
   --font-serif: var(--font-caslon), Georgia, "Times New Roman", serif;
 }
 
-html {
-  background: var(--color-paper);
-  color: var(--color-ink);
-  font-family: var(--font-serif);
-  font-variant-numeric: lining-nums;
-}
-
-body {
-  line-height: 1.6;
-}
-
-a {
-  color: var(--color-prussian);
-  text-underline-offset: 0.18em;
-}
-
-/* Foco visible y uniforme en toda la app, también en los controles de simulación. */
-:focus-visible {
-  outline: 3px solid var(--color-prussian);
-  outline-offset: 2px;
-}
-
-@media (prefers-reduced-motion: reduce) {
+/* En la capa base: fuera de ella, estas reglas ganarían a las utilidades. */
+@layer base {
   html {
-    scroll-behavior: auto;
+    background: var(--color-paper);
+    color: var(--color-ink);
+    font-family: var(--font-serif);
+    font-variant-numeric: lining-nums;
+  }
+
+  body {
+    line-height: 1.6;
+  }
+
+  h1,
+  h2,
+  h3 {
+    text-wrap: balance;
+  }
+
+  a {
+    color: var(--color-prussian);
+    text-underline-offset: 0.18em;
+  }
+
+  /* Foco visible y uniforme en toda la app, también en los controles de simulación. */
+  :focus-visible {
+    outline: 3px solid var(--color-prussian);
+    outline-offset: 2px;
   }
 }

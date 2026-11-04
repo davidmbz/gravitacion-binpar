@@ -55,3 +55,23 @@ test("un error del tutor se muestra y la mesa sigue funcionando", async ({
   await slider.fill("8");
   await expect(page.getByText("×¼").first()).toBeVisible();
 });
+
+test("una pregunta sugerida se envía con un toque", async ({ page }) => {
+  await page.route("/api/tutor", (route) =>
+    route.fulfill({
+      json: {
+        status: "ok",
+        reply: "Porque el efecto depende de la masa.",
+        scene: null,
+      },
+    }),
+  );
+  await answerFirstPrediction(page);
+
+  await page.getByRole("button", { name: /por qué cae la manzana/ }).click();
+
+  await expect(page.getByRole("log")).toContainText("por qué cae la manzana");
+  await expect(page.getByRole("log")).toContainText(
+    "Porque el efecto depende de la masa.",
+  );
+});

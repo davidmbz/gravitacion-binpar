@@ -16,6 +16,8 @@ export type Step = {
   /** Se muestra siempre tras responder, se haya acertado o no. */
   takeaway: string;
   invitation: string;
+  /** Preguntas para el tutor. Las de antes de responder no delatan el resultado. */
+  tutorPrompts: { pending: readonly string[]; answered: readonly string[] };
 };
 
 export const STEPS: readonly Step[] = [
@@ -50,6 +52,16 @@ export const STEPS: readonly Step[] = [
       "Es una sola atracción con dos extremos. Lo que cambia es el efecto: con la misma fuerza, el cuerpo de menos masa se mueve más. Por eso vemos caer la manzana y no vemos subir la Tierra.",
     invitation:
       "Compruébalo: cambia las masas y la distancia. Las dos flechas crecen y menguan a la vez, y siempre miden lo mismo.",
+    tutorPrompts: {
+      pending: [
+        "¿Qué significa aquí la palabra fuerza?",
+        "Dame una pista sin decirme la respuesta",
+      ],
+      answered: [
+        "Si las fuerzas son iguales, ¿por qué cae la manzana y no sube la Tierra?",
+        "Enséñame en la mesa dos masas muy distintas",
+      ],
+    },
   },
   {
     id: "mass",
@@ -89,6 +101,16 @@ export const STEPS: readonly Step[] = [
       "La fuerza es proporcional a cada masa: si una se multiplica por tres, la fuerza se multiplica por tres. Por eso, en la fórmula, las dos masas aparecen multiplicadas entre sí.",
     invitation:
       "Compruébalo: sube A de 4 a 8 y mira el número. Después sube B de 2 a 4: la fuerza vuelve a duplicarse y llega a ×4.",
+    tutorPrompts: {
+      pending: [
+        "¿Qué es la masa? ¿Es lo mismo que el peso?",
+        "Dame una pista sin decirme la respuesta",
+      ],
+      answered: [
+        "¿Por qué las masas se multiplican y no se suman?",
+        "Enséñame en la mesa qué pasa si duplico las dos masas",
+      ],
+    },
   },
   {
     id: "distance",
@@ -127,6 +149,16 @@ export const STEPS: readonly Step[] = [
       "Piensa en un espray de pintura. A doble distancia, la mancha es el doble de ancha y el doble de alta: la misma pintura se reparte en cuatro veces más superficie, y cada trozo recibe un cuarto. Con la gravedad pasa lo mismo. Por eso la distancia va al cuadrado.",
     invitation:
       "Compruébalo: lleva la distancia de 4 a 8 y mira el número. Luego bájala a 2: a mitad de distancia, la fuerza es ×4.",
+    tutorPrompts: {
+      pending: [
+        "¿Distancia entre qué puntos de los cuerpos?",
+        "Dame una pista sin decirme la respuesta",
+      ],
+      answered: [
+        "¿Por qué la distancia va al cuadrado y no al cubo?",
+        "Enséñame en la mesa qué pasa con el triple de distancia",
+      ],
+    },
   },
 ];
 
