@@ -40,6 +40,8 @@ pnpm test:e2e
 pnpm build
 ```
 
+Para correr los e2e contra la versión publicada, define `E2E_BASE_URL`.
+
 ## Decisiones técnicas
 
 El registro completo, con alternativas y costes, está en [docs/decisiones.md](docs/decisiones.md). Lo esencial:
@@ -78,7 +80,7 @@ El alcance temático se pide en el prompt, y el texto de la persona se trata com
 
 * El detalle integra en el hilo principal al abrir, sin Worker. En un Mac tarda 8–36 ms. No se ha medido en un móvil real.
 * Las flechas de Aprende son lineales con la fuerza. Por encima de lo que cabe se marcan como fuera de escala, y por debajo tienen una longitud mínima. El número siempre es exacto.
-* Una órbita desconocida muestra la página de no encontrado con estado HTTP 200 y `noindex`: con streaming, Next ya ha enviado la cabecera.
+* Una órbita desconocida muestra la página de no encontrado con `noindex`. En Vercel responde 404, pero con `next start` local responde 200, porque el streaming ya ha enviado la cabecera.
 * El progreso de Aprende y la conversación no sobreviven a una recarga.
 * Solo se ha probado en Chromium, sin lector de pantalla real.
 

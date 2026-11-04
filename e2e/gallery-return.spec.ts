@@ -64,8 +64,8 @@ test.describe("volver del detalle a la galería", () => {
   });
 });
 
-// Con streaming el estado HTTP ya es 200 cuando corre notFound(): Next lo
-// documenta como soft 404 y añade noindex.
+// El estado HTTP depende de dónde corra: 200 con `next start`, por el streaming,
+// y 404 en Vercel. Lo estable es la página y el noindex.
 test("una órbita desconocida muestra la página de no encontrado", async ({
   page,
 }) => {
