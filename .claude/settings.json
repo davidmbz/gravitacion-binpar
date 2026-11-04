@@ -1,0 +1,33 @@
+{
+  "permissions": {
+    "allow": [
+      "Bash(pnpm lint)",
+      "Bash(pnpm lint *)",
+      "Bash(pnpm typecheck)",
+      "Bash(pnpm test)",
+      "Bash(pnpm test *)",
+      "Bash(pnpm test:e2e)",
+      "Bash(pnpm test:e2e *)",
+      "Bash(pnpm build)"
+    ],
+    "ask": [
+      "Bash(git push *)",
+      "Bash(gh repo create *)",
+      "Bash(vercel *)",
+      "Bash(npx vercel *)"
+    ]
+  },
+  "hooks": {
+    "PostToolUse": [
+      {
+        "matcher": "Edit|Write",
+        "hooks": [
+          {
+            "type": "command",
+            "command": "f=$(jq -r '.tool_input.file_path'); pnpm exec prettier --write --ignore-unknown \"$f\""
+          }
+        ]
+      }
+    ]
+  }
+}
