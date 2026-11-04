@@ -4,7 +4,7 @@
 
 App web que enseña la ley de gravitación universal de Newton a personas adultas sin formación en física, con un modelo de lenguaje integrado en el aprendizaje y una galería de seis soluciones periódicas del problema de los tres cuerpos.
 
-Requisitos: `docs/requisitos.md`. Datos de las órbitas: `docs/orbitas.md`. Decisiones: `docs/decisiones.md`.
+Datos de las órbitas: `docs/orbitas.md`. Decisiones: `docs/decisiones.md`.
 
 ## Qué se evalúa
 
@@ -36,7 +36,7 @@ pnpm test:e2e
 pnpm build
 ```
 
-`test` y `test:e2e` no existen todavía: se configuran en el primer hito.
+`test:e2e` construye la app y corre contra el build de producción.
 
 ## Arquitectura
 

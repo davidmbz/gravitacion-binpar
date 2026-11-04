@@ -40,3 +40,17 @@ Una entrada por decisión relevante. Este registro alimenta el README y la prepa
 * Alternativas descartadas: confiar solo en Activity, que falla tras la expulsión y con enlaces. Guardar todo en `sessionStorage`, que reimplementa lo que el navegador ya hace.
 * Decisión: filtro en la URL con `replaceState`, scroll restaurado por el navegador y enlaces a la galería que usan `router.back()` si se llegó desde ella. El foco vuelve a la tarjeta de origen con un efecto.
 * Coste: un `Suspense` por `useSearchParams`, y en carga directa con filtro se ven un instante las seis órbitas. El origen vive en memoria del módulo: tras recargar el detalle, la vuelta es una navegación normal, que el enunciado permite.
+
+### Experiencia de Aprende
+
+* Contexto: el público no sabe física, y leer una fórmula no la enseña. La predicción obliga a comprometerse antes de ver el resultado.
+* Alternativas descartadas: misiones de lanzar una luna, que enseñan órbitas más que la ley. Editar el exponente de la ley, que exige una base previa.
+* Decisión: tres pasos con predicción corregida por la app. Mientras la predicción está pendiente, los controles se bloquean y, en el primer paso, se ocultan las flechas. Cada paso vuelve a la escena inicial (masas 4 y 2, distancia 4), para que ×1 signifique siempre lo mismo.
+* Coste: no se puede avanzar sin responder ni cambiar la respuesta, y al cambiar de paso se pierde lo movido en la mesa. Las flechas son lineales con la fuerza, así que los extremos se recortan: arriba se marca que no cabe a escala y abajo hay un mínimo de 5 px. El número siempre es el real.
+
+### Tutor en servidor, sin streaming
+
+* Contexto: el modelo debe explicar y operar la mesa, y el endpoint es público. La física es TypeScript puro, así que el servidor puede validar y calcular el efecto de cada herramienta.
+* Alternativas descartadas: streaming, que añade protocolo y estados para respuestas de unas 90 palabras. Ejecutar herramientas en el cliente, que permitiría falsificar resultados. Tool Runner del SDK, que es beta y oculta el bucle.
+* Decisión: `messages.create` con un bucle propio de 2 vueltas como máximo. La segunda bloquea las herramientas con `tool_choice: none`. Una sola herramienta, `configurar_escena`, validada con Zod. Con la predicción pendiente no se ofrece, porque revelaría el resultado. El cliente envía identificadores, y el servidor construye el bloque de estado.
+* Coste: la persona espera la respuesta completa. Los límites de frecuencia son por instancia. El historial llega del cliente, que podría falsificar turnos del tutor, aunque no el estado de la app.
