@@ -67,6 +67,32 @@ test("las pestañas se manejan con flechas y una sola parada de tabulador", asyn
   await expect(stepTab).toBeFocused();
 });
 
+test("tras fallar se puede preguntar al tutor sin perder el foco", async ({
+  page,
+}) => {
+  await page.goto("/aprende");
+  await predict(page, /A atrae a B con más fuerza/);
+
+  await page
+    .getByRole("button", { name: "Preguntar al tutor por qué" })
+    .click();
+
+  const tab = page.getByRole("tab", { name: "Tutor" });
+  await expect(tab).toBeFocused();
+  await expect(tab).toHaveAttribute("aria-selected", "true");
+  await expect(
+    page.getByRole("button", { name: /¿Por qué no es correcto/ }),
+  ).toBeVisible();
+});
+
+test("tras acertar no se ofrece el atajo al tutor", async ({ page }) => {
+  await page.goto("/aprende");
+  await predict(page, CORRECT_ANSWERS[0]);
+  await expect(
+    page.getByRole("button", { name: "Preguntar al tutor por qué" }),
+  ).toHaveCount(0);
+});
+
 test("ninguna fase tiene violaciones de accesibilidad", async ({ page }) => {
   const expectClean = async () => {
     const { violations } = await new AxeBuilder({ page }).analyze();

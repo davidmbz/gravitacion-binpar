@@ -161,6 +161,36 @@ test.describe("en móvil", () => {
   });
 });
 
+test.describe("con zoom del 200 %", () => {
+  // 1280 × 720 al 200 % deja 640 × 360 píxeles CSS.
+  test.use({ viewport: { width: 640, height: 360 } });
+
+  for (const { path, action } of [
+    { path: "/aprende", action: "Comprobar mi predicción" },
+    { path: "/orbitas/goggles", action: "Perturbar" },
+  ]) {
+    test(`${path} sigue siendo usable`, async ({ page }) => {
+      await page.goto(path);
+      const target = page.getByRole("button", { name: action, exact: true });
+      await target.scrollIntoViewIfNeeded();
+      await expect(target).toBeInViewport();
+
+      const { horizontal } = await page.evaluate(() => ({
+        horizontal: document.documentElement.scrollWidth - window.innerWidth,
+      }));
+      expect(horizontal).toBe(0);
+    });
+  }
+
+  test("/orbitas llega hasta la última lámina", async ({ page }) => {
+    await page.goto("/orbitas");
+    await expect(page.getByRole("status")).toHaveText("6 de 6 órbitas");
+    const last = page.getByRole("link", { name: /Yin-Yang I/ });
+    await last.scrollIntoViewIfNeeded();
+    await expect(last).toBeInViewport();
+  });
+});
+
 test.describe("en una ventana baja", () => {
   test.use({ viewport: { width: 1280, height: 420 } });
 

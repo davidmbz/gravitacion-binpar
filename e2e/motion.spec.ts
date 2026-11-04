@@ -93,7 +93,7 @@ test.describe("con prefers-reduced-motion", () => {
     await expect(
       page.getByRole("slider", { name: "Momento de la simulación" }),
     ).toHaveValue("0");
-    await expect(page.getByText("Instante 0.")).toBeVisible();
+    await expect(page.getByText("Instante 0,0.")).toBeVisible();
   });
 
   test("la portada queda quieta, con los cuerpos dibujados", async ({

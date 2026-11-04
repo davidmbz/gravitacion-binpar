@@ -111,6 +111,12 @@ export function LearnExperience() {
     headingRef.current?.focus();
   }
 
+  /** El botón pulsado desaparece con su pestaña: el foco debe ir a algún sitio. */
+  function openTutor() {
+    flushSync(() => setPanelTab("tutor"));
+    document.getElementById(tabId(TABS_ID, "tutor"))?.focus();
+  }
+
   function submitPrediction() {
     if (selectedId === null) return;
     go(
@@ -269,7 +275,11 @@ export function LearnExperience() {
             )}
 
             {phase === "result" && prediction.status === "answered" && (
-              <ResultPanel step={step} optionId={prediction.optionId} />
+              <ResultPanel
+                step={step}
+                optionId={prediction.optionId}
+                onAskTutor={openTutor}
+              />
             )}
 
             {phase === "explore" && (
