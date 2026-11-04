@@ -56,7 +56,7 @@ export const ORBITS: readonly Orbit[] = [
     period: 2 * Math.PI * 3 ** 0.25,
     initialState: lagrangeState(),
     summary:
-      "Un triángulo equilátero que gira sin deformarse. Es la solución más antigua, y la única de esta galería que se puede escribir con una fórmula.",
+      "Un triángulo equilátero que gira sin deformarse. Es la solución más antigua de esta galería, y la única que se puede escribir con una fórmula.",
     limitation:
       "Sobre el papel esta solución es exacta y eterna, pero es inestable: el redondeo numérico basta para deformarla tras unos ocho periodos.",
     source: {
@@ -86,7 +86,7 @@ export const ORBITS: readonly Orbit[] = [
     period: 6.23564136316479,
     initialState: collinearState(0.306892758965492, 0.125506782829762),
     summary:
-      "Dos alas simétricas. Los cuerpos pasan muy cerca unos de otros y salen despedidos a gran velocidad.",
+      "Los cuerpos pasan muy cerca unos de otros y salen despedidos a gran velocidad. El dibujo coincide consigo mismo al girarlo media vuelta.",
     limitation:
       "Sus condiciones iniciales son valores numéricos redondeados, no una fórmula. Li y Liao (2013) observaron que al menos siete de las quince órbitas de este catálogo se alejan de la trayectoria periódica en simulaciones de alta precisión.",
     source: LI_LIAO,
@@ -98,7 +98,7 @@ export const ORBITS: readonly Orbit[] = [
     period: 10.4668176954385,
     initialState: collinearState(0.0833000564575194, 0.127889282226563),
     summary:
-      "Dos lóbulos unidos por un puente, como unas gafas. Es la más sensible de las seis a cualquier error.",
+      "Una trayectoria delicada: con los valores publicados es la primera de las seis en desviarse, tras unos seis periodos.",
     limitation:
       "Sus condiciones iniciales son valores numéricos redondeados, no una fórmula. Li y Liao (2013) observaron que al menos siete de las quince órbitas de este catálogo se alejan de la trayectoria periódica en simulaciones de alta precisión.",
     source: LI_LIAO,
@@ -110,9 +110,9 @@ export const ORBITS: readonly Orbit[] = [
     period: 14.8939,
     initialState: collinearState(0.46444, 0.39606),
     summary:
-      "Una polilla de trazos amplios. Sus condiciones iniciales solo se publicaron con cinco decimales.",
+      "Trazos amplios y encuentros menos violentos que en sus vecinas. Aquí se usan los cinco decimales del artículo original.",
     limitation:
-      "Con cinco decimales, los cuerpos no vuelven exactamente al punto de partida. Li y Liao (2013) observaron además que al menos siete de las quince órbitas de este catálogo se alejan de la trayectoria periódica en simulaciones de alta precisión.",
+      "Con solo cinco decimales, los cuerpos no vuelven exactamente al punto de partida. Sus condiciones iniciales son valores numéricos redondeados, no una fórmula.",
     source: SUVAKOV,
   },
   {
@@ -122,7 +122,7 @@ export const ORBITS: readonly Orbit[] = [
     period: 17.328369755004,
     initialState: collinearState(0.513938054919243, 0.304736003875733),
     summary:
-      "Dos mitades que se envuelven. El catálogo tiene dos variantes: aquí se usa la a, que cierra mejor y aguanta más periodos.",
+      "La más larga de la galería: tarda unas 17 unidades de tiempo en repetirse. El catálogo tiene dos variantes y aquí se usa la a, que aguanta más periodos antes de desviarse.",
     limitation:
       "Sus condiciones iniciales son valores numéricos redondeados, no una fórmula. Li y Liao (2013) observaron que al menos siete de las quince órbitas de este catálogo se alejan de la trayectoria periódica en simulaciones de alta precisión.",
     source: LI_LIAO,

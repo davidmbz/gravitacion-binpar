@@ -9,16 +9,20 @@ const INTERVALS = 512;
 const VISUAL_CLOSURE = 1e-3;
 
 /**
- * Límite de cierre por órbita. Las órbitas de catálogo se quedan en el límite
- * visual porque su error viene de los dígitos publicados, no del integrador.
- * Las dos primeras tienen más margen y se les exige más.
+ * Límite de cierre en posición: mide el salto visible del bucle. Con el estado
+ * completo de `docs/orbitas.md`, las velocidades de Butterfly I y Goggles
+ * llegan a 2,5e-3, pero no se dibujan.
+ *
+ * Las órbitas de catálogo usan el límite visual porque su error viene de los
+ * dígitos publicados, no del integrador. Las dos primeras son más precisas: se
+ * les exige cerca de 40 veces lo medido, como margen entre plataformas.
  */
 const CLOSURE_LIMIT: Record<string, number> = {
   lagrange: 1e-10,
   "figura-de-ocho": 1e-6,
 };
 
-/** Unas 30 veces la deriva medida (3,4e-11): absorbe diferencias de plataforma. */
+/** Unas 30 veces la deriva medida (~3,7e-11): absorbe diferencias de plataforma. */
 const ENERGY_DRIFT_LIMIT = 1e-9;
 
 function energyDrift(states: Float64Array): number {
@@ -129,17 +133,22 @@ describe("positionsAt", () => {
     "%s se reproduce con menos de 0,5 px de error a 800 px",
     (_name, orbit) => {
       const coarse = sampleOrbit(orbit);
-      const factor = 4;
-      const fine = sampleOrbit(orbit, coarse.intervals * factor);
+      // Con el doble de tramos, las muestras impares caen en el centro de cada
+      // tramo grueso, donde Hermite se aleja más.
+      const fine = sampleOrbit(orbit, coarse.intervals * 2);
       const out = new Float64Array(POSITION_SIZE);
       let worst = 0;
 
       for (let sample = 1; sample < fine.intervals; sample += 2) {
         positionsAt(coarse, sample / fine.intervals, out);
-        for (let i = 0; i < POSITION_SIZE; i++) {
+        const start = sample * STATE_SIZE;
+        for (let i = 0; i < POSITION_SIZE; i += 2) {
           worst = Math.max(
             worst,
-            Math.abs(out[i] - fine.states[sample * STATE_SIZE + i]),
+            Math.hypot(
+              out[i] - fine.states[start + i],
+              out[i + 1] - fine.states[start + i + 1],
+            ),
           );
         }
       }

@@ -1,7 +1,7 @@
 "use client";
 
 import { useSearchParams } from "next/navigation";
-import { useEffect } from "react";
+import { startTransition, useEffect, useOptimistic } from "react";
 import {
   CURVE_FILTERS,
   CURVE_PARAM,
@@ -18,7 +18,10 @@ export function FilterableGallery({
 }: {
   cards: readonly GalleryCard[];
 }) {
-  const filter = parseCurveFilter(useSearchParams().get(CURVE_PARAM));
+  const urlFilter = parseCurveFilter(useSearchParams().get(CURVE_PARAM));
+  // useSearchParams se actualiza en una transición: sin esto, el radio volvería
+  // un instante a su valor anterior. La URL sigue siendo la fuente de verdad.
+  const [filter, setOptimisticFilter] = useOptimistic(urlFilter);
   const visibleCards = cards.filter((card) =>
     matchesFilter(card.curve, filter),
   );
@@ -33,8 +36,15 @@ export function FilterableGallery({
   }, []);
 
   function selectFilter(next: CurveFilter) {
-    // replaceState se integra con useSearchParams y no va al servidor.
-    window.history.replaceState(null, "", `/orbitas${curveFilterSearch(next)}`);
+    startTransition(() => {
+      setOptimisticFilter(next);
+      // replaceState se integra con useSearchParams y no va al servidor.
+      window.history.replaceState(
+        null,
+        "",
+        `/orbitas${curveFilterSearch(next)}`,
+      );
+    });
   }
 
   return (

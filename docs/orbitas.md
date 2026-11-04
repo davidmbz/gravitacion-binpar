@@ -25,7 +25,7 @@ El catálogo tiene dos variantes de Yin-Yang I. Hay que elegir una y justificarl
 
 ### Figura de ocho
 
-No aparece en estas tablas. Los valores proceden de memoria y solo están validados numéricamente, así que falta localizar y citar una fuente primaria.
+No aparece en estas tablas. Fuente primaria: Chenciner y Montgomery, arXiv math/0011268, figura 1, con valores calculados por Simó.
 
 * r1 = (0.97000436, -0.24308753), r2 = -r1, r3 = (0, 0)
 * v3 = (-0.93240737, -0.86473146), v1 = v2 = -v3 / 2
@@ -68,3 +68,4 @@ Integrador DOPRI5 adaptativo con tolerancias de 1e-13, implementado para esta co
 
 * Šuvakov y Dmitrašinović, Three Classes of Newtonian Three-Body Planar Periodic Orbits: https://arxiv.org/abs/1303.0181
 * Li y Liao, comentario con valores de 15 dígitos: https://arxiv.org/abs/1312.6796
+* Chenciner y Montgomery, figura de ocho: https://arxiv.org/abs/math/0011268

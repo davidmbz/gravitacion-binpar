@@ -5,7 +5,7 @@ import { POSITION_SIZE, STATE_SIZE, threeBodyDerivative } from "./three-body";
 /** Tolerancia con la que `docs/orbitas.md` midió las órbitas. */
 const TOLERANCE = 1e-13;
 
-/** Con 4096 tramos, Hermite se desvía menos de 0,4 px en un canvas de 800 px. */
+/** Con 4096 tramos, Hermite se desvía menos de 0,5 px en un canvas de 800 px. */
 export const PLAYBACK_INTERVALS = 4096;
 
 export interface OrbitSamples {
@@ -100,12 +100,21 @@ export function closestApproach({ states, intervals }: OrbitSamples): number {
   return closest;
 }
 
-/** Mayor diferencia de posición entre el inicio y el final del periodo. */
+/**
+ * Mayor distancia entre la posición inicial y final de un cuerpo. Mide el salto
+ * visible al repetir el bucle. La velocidad no se incluye porque no se dibuja.
+ */
 export function positionClosure({ states, intervals }: OrbitSamples): number {
   const last = intervals * STATE_SIZE;
   let closure = 0;
-  for (let i = 0; i < POSITION_SIZE; i++) {
-    closure = Math.max(closure, Math.abs(states[last + i] - states[i]));
+  for (let i = 0; i < POSITION_SIZE; i += 2) {
+    closure = Math.max(
+      closure,
+      Math.hypot(
+        states[last + i] - states[i],
+        states[last + i + 1] - states[i + 1],
+      ),
+    );
   }
   return closure;
 }

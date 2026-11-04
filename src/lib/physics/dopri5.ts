@@ -91,6 +91,11 @@ export function integrateUniform({
 
       const error = scaledError(current, next, stages, usedStep, tolerance);
 
+      // Con NaN ninguna comparación de abajo se cumple y el bucle no acabaría.
+      if (!Number.isFinite(error)) {
+        throw new Error(`Estado no finito en t = ${time}`);
+      }
+
       if (error <= 1) {
         time = clipped ? target : time + usedStep;
         [current, next] = [next, current];

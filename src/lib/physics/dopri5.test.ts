@@ -37,7 +37,22 @@ describe("integrateUniform", () => {
     expect(finalError(1e-12)).toBeLessThan(finalError(1e-8) / 100);
   });
 
-  it("falla de forma explícita ante una singularidad", () => {
+  it("falla de forma explícita si el estado deja de ser finito", () => {
+    const broken: Derivative = (_state, out) => {
+      out[0] = NaN;
+    };
+    expect(() =>
+      integrateUniform({
+        derivative: broken,
+        initialState: [1],
+        duration: 1,
+        intervals: 1,
+        tolerance: 1e-10,
+      }),
+    ).toThrow(/no finito/);
+  });
+
+  it("falla de forma explícita si el paso se hace demasiado pequeño", () => {
     const collapse: Derivative = (state, out) => {
       out[0] = -1 / state[0] ** 3;
     };
