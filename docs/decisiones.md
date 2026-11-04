@@ -33,3 +33,10 @@ Una entrada por decisión relevante. Este registro alimenta el README y la prepa
 * Alternativas descartadas: usar valores refinados, que pierden la trazabilidad con las fuentes y añaden código que la animación no necesita.
 * Decisión: mantener los valores publicados. Yin-Yang I usa la variante a porque cierra mejor (5,5e-4 frente a 8,6e-4) y aguanta más periodos (20 frente a 15).
 * Coste: el cierre numérico es peor de lo posible. El test de cierre usa un límite visual justificado.
+
+### Estado de la galería al volver del detalle
+
+* Contexto: con Cache Components, Next oculta las rutas con Activity, pero solo guarda 3 por nivel. En back/forward no toca el scroll, y un enlace normal a la galería haría push y subiría al inicio.
+* Alternativas descartadas: confiar solo en Activity, que falla tras la expulsión y con enlaces. Guardar todo en `sessionStorage`, que reimplementa lo que el navegador ya hace.
+* Decisión: filtro en la URL con `replaceState`, scroll restaurado por el navegador y enlaces a la galería que usan `router.back()` si se llegó desde ella. El foco vuelve a la tarjeta de origen con un efecto.
+* Coste: un `Suspense` por `useSearchParams`, y en carga directa con filtro se ven un instante las seis órbitas. El origen vive en memoria del módulo: tras recargar el detalle, la vuelta es una navegación normal, que el enunciado permite.

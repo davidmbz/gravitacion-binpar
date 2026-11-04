@@ -2,36 +2,39 @@
 
 import Link from "next/link";
 import { usePathname } from "next/navigation";
+import { GalleryLink } from "@/features/gallery/gallery-link";
 
-const LINKS = [
-  { href: "/aprende", label: "Aprende" },
-  { href: "/orbitas", label: "Órbitas" },
-] as const;
+function linkClass(isCurrent: boolean): string {
+  return isCurrent
+    ? "text-ink underline decoration-cinnabar decoration-2"
+    : "text-ink no-underline hover:underline";
+}
 
 export function SiteNav() {
   const pathname = usePathname();
+  const inLearn = pathname.startsWith("/aprende");
+  const inOrbits = pathname.startsWith("/orbitas");
 
   return (
     <nav aria-label="Principal">
       <ul className="flex gap-6">
-        {LINKS.map(({ href, label }) => {
-          const isCurrent = pathname.startsWith(href);
-          return (
-            <li key={href}>
-              <Link
-                href={href}
-                aria-current={isCurrent ? "page" : undefined}
-                className={
-                  isCurrent
-                    ? "text-ink underline decoration-cinnabar decoration-2"
-                    : "text-ink no-underline hover:underline"
-                }
-              >
-                {label}
-              </Link>
-            </li>
-          );
-        })}
+        <li>
+          <Link
+            href="/aprende"
+            aria-current={inLearn ? "page" : undefined}
+            className={linkClass(inLearn)}
+          >
+            Aprende
+          </Link>
+        </li>
+        <li>
+          <GalleryLink
+            aria-current={inOrbits ? "page" : undefined}
+            className={linkClass(inOrbits)}
+          >
+            Órbitas
+          </GalleryLink>
+        </li>
       </ul>
     </nav>
   );

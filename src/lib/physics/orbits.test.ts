@@ -1,6 +1,6 @@
 import { describe, expect, it } from "vitest";
 import { ORBITS, findOrbit, type Orbit } from "./orbits";
-import { positionsAt, sampleOrbit } from "./sampling";
+import { positionClosure, positionsAt, sampleOrbit } from "./sampling";
 import { POSITION_SIZE, STATE_SIZE, totalEnergy } from "./three-body";
 
 const INTERVALS = 512;
@@ -20,15 +20,6 @@ const CLOSURE_LIMIT: Record<string, number> = {
 
 /** Unas 30 veces la deriva medida (3,4e-11): absorbe diferencias de plataforma. */
 const ENERGY_DRIFT_LIMIT = 1e-9;
-
-function positionClosure(states: Float64Array): number {
-  const last = INTERVALS * STATE_SIZE;
-  let closure = 0;
-  for (let i = 0; i < POSITION_SIZE; i++) {
-    closure = Math.max(closure, Math.abs(states[last + i] - states[i]));
-  }
-  return closure;
-}
 
 function energyDrift(states: Float64Array): number {
   const initial = totalEnergy(states.subarray(0, STATE_SIZE));
@@ -73,7 +64,8 @@ function cyclicGap(states: Float64Array, bodyShift: number): number {
 describe.each(ORBITS.map((orbit) => [orbit.name, orbit] as const))(
   "%s",
   (_name, orbit) => {
-    const { states } = sampleOrbit(orbit, INTERVALS);
+    const samples = sampleOrbit(orbit, INTERVALS);
+    const { states } = samples;
 
     it("tiene un estado completo", () => {
       expect(orbit.initialState).toHaveLength(STATE_SIZE);
@@ -81,7 +73,7 @@ describe.each(ORBITS.map((orbit) => [orbit.name, orbit] as const))(
 
     it("cierra tras un periodo", () => {
       const limit = CLOSURE_LIMIT[orbit.slug] ?? VISUAL_CLOSURE;
-      expect(positionClosure(states)).toBeLessThan(limit);
+      expect(positionClosure(samples)).toBeLessThan(limit);
     });
 
     it("conserva la energía", () => {

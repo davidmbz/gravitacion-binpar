@@ -77,3 +77,35 @@ export function maxExtent({ states, intervals }: OrbitSamples): number {
   }
   return extent;
 }
+
+/** Menor distancia entre dos cuerpos en los instantes muestreados. */
+export function closestApproach({ states, intervals }: OrbitSamples): number {
+  let closest = Infinity;
+  for (let sample = 0; sample <= intervals; sample++) {
+    const start = sample * STATE_SIZE;
+    for (const [a, b] of [
+      [0, 2],
+      [0, 4],
+      [2, 4],
+    ]) {
+      closest = Math.min(
+        closest,
+        Math.hypot(
+          states[start + a] - states[start + b],
+          states[start + a + 1] - states[start + b + 1],
+        ),
+      );
+    }
+  }
+  return closest;
+}
+
+/** Mayor diferencia de posición entre el inicio y el final del periodo. */
+export function positionClosure({ states, intervals }: OrbitSamples): number {
+  const last = intervals * STATE_SIZE;
+  let closure = 0;
+  for (let i = 0; i < POSITION_SIZE; i++) {
+    closure = Math.max(closure, Math.abs(states[last + i] - states[i]));
+  }
+  return closure;
+}
