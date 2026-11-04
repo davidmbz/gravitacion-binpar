@@ -4,7 +4,7 @@ const FILTERED_URL = /\/orbitas\?curva=propia$/;
 
 async function openFromFilteredGallery(page: Page) {
   await page.goto("/orbitas");
-  await page.getByRole("radio", { name: "Una curva por cuerpo" }).check();
+  await page.getByRole("radio", { name: "Curva propia" }).check();
   await expect(page).toHaveURL(FILTERED_URL);
   await expect(page.getByRole("status")).toHaveText("4 de 6 órbitas");
 
@@ -22,9 +22,7 @@ async function openFromFilteredGallery(page: Page) {
 
 async function expectRestoredState(page: Page, scrollBefore: number) {
   await expect(page).toHaveURL(FILTERED_URL);
-  await expect(
-    page.getByRole("radio", { name: "Una curva por cuerpo" }),
-  ).toBeChecked();
+  await expect(page.getByRole("radio", { name: "Curva propia" })).toBeChecked();
   await expect(page.getByRole("status")).toHaveText("4 de 6 órbitas");
   await expect(page.getByRole("link", { name: /Yin-Yang I/ })).toBeFocused();
   await expect

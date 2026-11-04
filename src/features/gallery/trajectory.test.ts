@@ -55,6 +55,33 @@ describe("buildTrajectory", () => {
     expect(coarse.length).toBeLessThan(fine.length);
   });
 
+  it("dibuja solo la fracción pedida, con el mismo encuadre", () => {
+    const full = buildTrajectory(samples, 0.02);
+    const third = buildTrajectory(samples, 0.02, 1 / 3);
+    expect(third.paths[0].length).toBeLessThan(full.paths[0].length);
+    expect(third.frame).toEqual(full.frame);
+  });
+
+  it("un tercio de cada cuerpo completa una curva compartida", () => {
+    const lagrange = sampleOrbit(ORBITS[0], 300);
+    const { paths } = buildTrajectory(lagrange, 0, 1 / 3);
+    const points = (path: string) =>
+      path
+        .slice(1)
+        .split("L")
+        .map((point) => point.split(" ").map(Number));
+    const expectSamePoint = (a: number[] | undefined, b: number[]) => {
+      expect(a?.[0]).toBeCloseTo(b[0], 2);
+      expect(a?.[1]).toBeCloseTo(b[1], 2);
+    };
+
+    // Cada arco termina donde empieza el del cuerpo siguiente.
+    const [first, second, third] = paths.map(points);
+    expectSamePoint(first.at(-1), second[0]);
+    expectSamePoint(second.at(-1), third[0]);
+    expectSamePoint(third.at(-1), first[0]);
+  });
+
   it("invierte el eje y para SVG", () => {
     const { paths } = buildTrajectory(sampleOrbit(ORBITS[0], 12), 0);
     // El cuerpo 2 de Lagrange empieza por encima del eje: y físico positivo.

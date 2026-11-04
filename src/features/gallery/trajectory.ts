@@ -73,10 +73,14 @@ export function stageAspectRatio({ width, height }: Frame): number {
  * Convierte las muestras en trazados SVG. Solo conserva puntos separados al
  * menos `minStep`: los tramos lentos acumulan muestras que no se distinguen.
  * El eje y se invierte porque en SVG crece hacia abajo.
+ *
+ * `coverage` es la fracción del periodo que se dibuja. Si los tres cuerpos
+ * comparten curva, un tercio de cada uno la completa sin que se tapen.
  */
 export function buildTrajectory(
   samples: OrbitSamples,
   minStep: number,
+  coverage: number = 1,
 ): Trajectory {
   const paths: string[] = [];
 
@@ -85,11 +89,12 @@ export function buildTrajectory(
     let lastX = Infinity;
     let lastY = Infinity;
 
-    for (let sample = 0; sample <= samples.intervals; sample++) {
+    const lastSample = Math.round(samples.intervals * coverage);
+    for (let sample = 0; sample <= lastSample; sample++) {
       const x = samples.states[sample * STATE_SIZE + 2 * body];
       const y = samples.states[sample * STATE_SIZE + 2 * body + 1];
       if (
-        sample === samples.intervals ||
+        sample === lastSample ||
         Math.hypot(x - lastX, y - lastY) >= minStep
       ) {
         points.push(`${x.toFixed(3)} ${(-y).toFixed(3)}`);

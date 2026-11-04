@@ -55,17 +55,17 @@ export function OrbitCardLink({
       onBlur={(event) => {
         if (!event.currentTarget.matches(":hover")) stop();
       }}
-      className="group block text-ink no-underline"
+      className="group flex h-full flex-col rounded-md border border-rule bg-stage text-ink no-underline transition-colors duration-150 hover:border-ink"
     >
-      <div className="relative aspect-square border border-rule bg-paper-deep/50 p-3 group-hover:border-ink">
-        {figure}
+      <div className="relative min-h-0 flex-1">
+        <div className="absolute inset-2">{figure}</div>
         <canvas
           ref={canvasRef}
           aria-hidden="true"
-          className="absolute inset-3 size-[calc(100%-1.5rem)]"
+          className="absolute inset-2 size-[calc(100%-1rem)]"
         />
       </div>
-      {children}
+      <div className="px-3 pb-2.5">{children}</div>
     </Link>
   );
 }

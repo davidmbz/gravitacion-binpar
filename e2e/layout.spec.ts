@@ -37,6 +37,32 @@ for (const size of SCREENS) {
       await expectNoPageScroll(page);
     });
 
+    test("la galería muestra las seis órbitas sin scroll", async ({ page }) => {
+      await page.goto("/orbitas");
+      await expect(page.getByRole("status")).toHaveText("6 de 6 órbitas");
+      await expectNoPageScroll(page);
+
+      const cards = page.getByRole("main").getByRole("link");
+      await expect(cards).toHaveCount(6);
+      for (const card of await cards.all()) {
+        await expect(card).toBeInViewport({ ratio: 1 });
+      }
+    });
+
+    test("filtrar la galería no estira las láminas", async ({ page }) => {
+      await page.goto("/orbitas");
+      await expect(page.getByRole("status")).toHaveText("6 de 6 órbitas");
+      const card = page.getByRole("link", { name: /Lagrange/ });
+      const before = await card.boundingBox();
+
+      await page.getByRole("radio", { name: "Curva compartida" }).check();
+      await expect(page.getByRole("status")).toHaveText("2 de 6 órbitas");
+
+      const after = await card.boundingBox();
+      expect(after?.height).toBeCloseTo(before?.height ?? 0, 0);
+      await expectNoPageScroll(page);
+    });
+
     test("Aprende mantiene el cierre sin scroll", async ({ page }) => {
       await page.goto("/aprende");
       for (const answer of CORRECT_ANSWERS.slice(0, 3)) {
@@ -52,6 +78,39 @@ for (const size of SCREENS) {
     });
   });
 }
+
+test("el filtro de la galería muestra el foco de teclado", async ({ page }) => {
+  await page.goto("/orbitas");
+  await expect(page.getByRole("status")).toHaveText("6 de 6 órbitas");
+
+  // El radio real es invisible: el contorno lo dibuja su etiqueta.
+  await page.getByRole("link", { name: "Órbitas" }).focus();
+  await page.keyboard.press("Tab");
+  const radio = page.getByRole("radio", { name: "Todas" });
+  await expect(radio).toBeFocused();
+
+  const outline = await radio.evaluate((input) => {
+    const label = input.closest("label");
+    return label ? getComputedStyle(label).outlineStyle : "sin etiqueta";
+  });
+  expect(outline).toBe("solid");
+});
+
+test.describe("en móvil", () => {
+  test.use({ viewport: { width: 375, height: 667 } });
+
+  test("el filtro cabe en una línea", async ({ page }) => {
+    await page.goto("/orbitas");
+    await expect(page.getByRole("status")).toHaveText("6 de 6 órbitas");
+    const first = await page
+      .getByRole("radio", { name: "Todas" })
+      .boundingBox();
+    const last = await page
+      .getByRole("radio", { name: "Curva propia" })
+      .boundingBox();
+    expect(last?.y).toBe(first?.y);
+  });
+});
 
 test.describe("en una ventana baja", () => {
   test.use({ viewport: { width: 1280, height: 420 } });

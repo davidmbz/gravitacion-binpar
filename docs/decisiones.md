@@ -117,3 +117,10 @@ Una entrada por decisión relevante. Este registro alimenta el README y la prepa
 * Alternativas descartadas: mantener los controles visibles pero deshabilitados, que añade ruido y sugiere una acción que no existe.
 * Decisión: una sola fase a la vez, con `predict`, `result`, `explore` y `closing` en el reducer. Al revelar el resultado, la mesa aplica el cambio por el que se preguntó, deja el contorno de lo anterior y marca hasta dónde llegaba la flecha. Volver a un paso ya respondido entra en Explorar.
 * Coste: hay más pulsaciones por paso. La fase de resultado cambia la escena sin que la persona toque nada, y se resuelve volviendo a la escena inicial al explorar.
+
+### Rejilla de la galería
+
+* Contexto: seis láminas iguales desperdiciaban espacio, porque Figura de ocho y Butterfly I son mucho más anchas que altas. En una curva compartida, además, el último cuerpo tapaba a los otros dos.
+* Alternativas descartadas: destacar una órbita a mano, que no tiene una razón defendible. Usar `grid-auto-flow: dense` para evitar huecos en móvil, que separa el orden visual del de teclado.
+* Decisión: la lámina es ancha si su encuadre real lo es. El orden elegido llena cuatro y dos columnas sin huecos, y un test lo comprueba con las órbitas reales. En las curvas compartidas se dibuja el tercio que recorre cada cuerpo, y así aparecen los tres colores.
+* Coste: el orden ya no es el del catálogo. Al filtrar en móvil puede quedar un hueco, porque el orden solo está pensado para las seis.

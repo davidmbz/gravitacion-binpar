@@ -71,6 +71,14 @@
     }
   }
 
+  /* La galería solo llena la pantalla en escritorio: en móvil hace scroll. */
+  @media (min-width: 64rem) {
+    .app-screen-desktop {
+      height: calc(100dvh - 3rem - env(safe-area-inset-top));
+      min-height: 38rem;
+    }
+  }
+
   /* Al escribir en el móvil, el teclado manda: la mesa cede su sitio al campo. */
   @media (max-width: 63.99rem) {
     .app-screen:has(textarea:focus) {

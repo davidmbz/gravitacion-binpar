@@ -4,7 +4,7 @@ import { sampleOrbit, type OrbitSamples } from "@/lib/physics/sampling";
 import { paintOrbit, sizeCanvas, startLoop } from "./paint-orbit";
 import type { Frame } from "./trajectory";
 
-const CARD_STYLE = { bodyRadius: 4, trailDuration: 0.5, loops: true };
+const CARD_STYLE = { bodyRadius: 5, trailDuration: 0.5, loops: true };
 
 /** La muestra de la tarjeta no necesita tanto detalle como la del reproductor. */
 const CARD_INTERVALS = 1024;
