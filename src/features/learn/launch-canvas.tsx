@@ -37,6 +37,8 @@ export function LaunchCanvas({ launch, flight, onLanded }: LaunchCanvasProps) {
     const moon = flight.status === "ready" ? null : flight.flight;
 
     const paint = () => {
+      const ratio = canvas.width / canvas.clientWidth;
+      context.setTransform(ratio, 0, 0, ratio, 0, 0);
       const totalPoints = moon ? moon.positions.length / 2 : 0;
       const progress = moon ? elapsedRef.current / moon.duration : 0;
       const visiblePoints = Math.min(
@@ -57,7 +59,6 @@ export function LaunchCanvas({ launch, flight, onLanded }: LaunchCanvasProps) {
       const ratio = Math.min(window.devicePixelRatio, MAX_DEVICE_PIXEL_RATIO);
       canvas.width = canvas.clientWidth * ratio;
       canvas.height = canvas.clientHeight * ratio;
-      context.scale(ratio, ratio);
       paint();
     });
     observer.observe(canvas);
@@ -98,7 +99,7 @@ export function LaunchCanvas({ launch, flight, onLanded }: LaunchCanvasProps) {
       ref={canvasRef}
       role="img"
       aria-label={`Planeta en el centro y una luna en lo alto, con ${formatLaunch(launch)}.${result}`}
-      className="block h-52 w-full sm:h-56 lg:h-72"
+      className="absolute inset-0 size-full"
     />
   );
 }

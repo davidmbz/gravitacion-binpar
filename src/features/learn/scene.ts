@@ -23,6 +23,12 @@ export function relativeForce(scene: Scene): number {
   return forceWithoutG(scene) / forceWithoutG(INITIAL_SCENE);
 }
 
+export function sameScene(a: Scene, b: Scene): boolean {
+  return (
+    a.massA === b.massA && a.massB === b.massB && a.distance === b.distance
+  );
+}
+
 const COMMON_FRACTIONS = [
   { value: 0.25, text: "¼" },
   { value: 0.5, text: "½" },

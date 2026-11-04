@@ -19,11 +19,13 @@ const masses = (
 type FormulaProps = {
   predictions: LearnState["predictions"];
   currentStepId: StepId;
+  /** En el cierre, la fórmula es la protagonista de la mesa. */
+  size: "chip" | "hero";
 };
 
 // Cada pieza aparece al responder su paso, nunca antes: si no, la fórmula
 // delataría la respuesta. El signo ? marca lo que aún falta por descubrir.
-export function Formula({ predictions, currentStepId }: FormulaProps) {
+export function Formula({ predictions, currentStepId, size }: FormulaProps) {
   const hasForce = predictions.attraction.status === "answered";
   const hasMasses = predictions.mass.status === "answered";
   const hasDistance = predictions.distance.status === "answered";
@@ -37,33 +39,36 @@ export function Formula({ predictions, currentStepId }: FormulaProps) {
       : "F igual a algo por descubrir";
 
   return (
-    <section
-      aria-labelledby="formula-title"
-      className="border-t border-rule pt-4"
-    >
-      <h3 id="formula-title" className="text-xl">
-        La ley, hasta ahora
-      </h3>
-      <p className="sr-only">{spokenFormula}</p>
+    <div className={size === "hero" ? "text-center" : undefined}>
+      <p className="sr-only">La ley, hasta ahora: {spokenFormula}</p>
       <div
         aria-hidden="true"
-        className="mt-3 flex items-center gap-3 text-3xl leading-none"
+        className={`flex items-center ${
+          size === "hero"
+            ? "justify-center gap-4 text-5xl leading-tight lg:text-7xl"
+            : "gap-2 text-xl leading-none lg:text-2xl"
+        }`}
       >
-        <Piece isNew={currentStepId === "attraction"}>
+        <Piece isNew={size === "chip" && currentStepId === "attraction"}>
           <i>F</i>
         </Piece>
         <span>=</span>
         {hasDistance ? (
-          <span className="inline-flex flex-col items-center gap-1">
-            <span className="border-b border-ink px-2 pb-2">
-              <Piece isNew={currentStepId === "distance"}>
+          <span
+            className={`inline-flex flex-col items-center ${
+              size === "hero" ? "gap-3" : "gap-1"
+            }`}
+          >
+            <span className="border-b border-ink px-2 pb-1">
+              <Piece isNew={size === "chip" && currentStepId === "distance"}>
                 <i>G</i>
               </Piece>{" "}
               · {masses}
             </span>
-            <Piece isNew={currentStepId === "distance"}>
+            <Piece isNew={size === "chip" && currentStepId === "distance"}>
               <i>r</i>
-              <sup>2</sup>
+              {/* Sin esto, el superíndice sube la línea y toca la fracción. */}
+              <sup className="top-[-0.3em] text-[0.6em]">2</sup>
             </Piece>
           </span>
         ) : (
@@ -78,32 +83,12 @@ export function Formula({ predictions, currentStepId }: FormulaProps) {
           </span>
         )}
       </div>
-      <dl className="mt-4 space-y-1">
-        <div>
-          <dt className="inline italic">F</dt>
-          <dd className="inline">: la fuerza, igual en los dos cuerpos.</dd>
-        </div>
-        {hasMasses && (
-          <div>
-            <dt className="inline italic">
-              m<sub>1</sub> y m<sub>2</sub>
-            </dt>
-            <dd className="inline">: las masas de los dos cuerpos.</dd>
-          </div>
-        )}
-        {hasDistance && (
-          <>
-            <div>
-              <dt className="inline italic">r</dt>
-              <dd className="inline">: la distancia entre ellos.</dd>
-            </div>
-            <div>
-              <dt className="inline italic">G</dt>
-              <dd className="inline">: una constante universal.</dd>
-            </div>
-          </>
-        )}
-      </dl>
-    </section>
+      {size === "hero" && (
+        <p className="mt-6 text-lg text-ink-soft">
+          La fuerza crece con las masas y cae con el cuadrado de la distancia. G
+          es una constante universal.
+        </p>
+      )}
+    </div>
   );
 }

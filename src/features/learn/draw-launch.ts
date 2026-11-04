@@ -14,8 +14,10 @@ const COLORS = {
 
 /** Unidades visibles desde el centro hasta el borde superior. */
 const VIEW_HALF_HEIGHT = 2.2;
+/** En pantallas estrechas manda el ancho: la órbita circular debe caber entera. */
+const VIEW_HALF_WIDTH = 1.5;
 const ARROW_UNITS_PER_SPEED = 0.8;
-const MOON_RADIUS = 5;
+const MOON_RADIUS = 7;
 const ARROW_HEAD = 8;
 
 type LaunchDrawing = {
@@ -39,7 +41,10 @@ export function drawLaunch(
     fontFamily,
   }: LaunchDrawing,
 ): void {
-  const scale = height / (2 * VIEW_HALF_HEIGHT);
+  const scale = Math.min(
+    height / (2 * VIEW_HALF_HEIGHT),
+    width / (2 * VIEW_HALF_WIDTH),
+  );
   const toX = (x: number) => width / 2 + x * scale;
   const toY = (y: number) => height / 2 - y * scale;
 
@@ -54,7 +59,7 @@ export function drawLaunch(
   context.stroke();
 
   context.fillStyle = COLORS.ink;
-  context.font = `italic 11px ${fontFamily}`;
+  context.font = `italic 13px ${fontFamily}`;
   context.textAlign = "center";
   context.textBaseline = "middle";
   context.fillText("planeta", toX(0), toY(0));
@@ -69,7 +74,7 @@ export function drawLaunch(
       context.lineTo(toX(positions[2 * point]), toY(positions[2 * point + 1]));
     }
     context.strokeStyle = COLORS.path;
-    context.lineWidth = 2;
+    context.lineWidth = 3;
     context.lineJoin = "round";
     context.stroke();
     moonX = positions[2 * (visiblePoints - 1)];

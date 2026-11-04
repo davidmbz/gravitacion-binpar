@@ -1,4 +1,4 @@
-import type { Metadata } from "next";
+import type { Metadata, Viewport } from "next";
 import { Libre_Caslon_Text } from "next/font/google";
 import { SiteHeader } from "@/components/site-header";
 import "./globals.css";
@@ -19,12 +19,19 @@ export const metadata: Metadata = {
     "Aprende la ley de gravitación de Newton experimentando, y explora seis órbitas de tres cuerpos.",
 };
 
+export const viewport: Viewport = {
+  // Deja dibujar bajo la muesca: cabecera y barras reservan la zona segura.
+  viewportFit: "cover",
+  // En Android, el teclado encoge la ventana y con ella 100dvh.
+  interactiveWidget: "resizes-content",
+};
+
 export default function RootLayout({ children }: LayoutProps<"/">) {
   return (
     <html lang="es" className={`${caslon.variable} antialiased`}>
       <body className="flex min-h-dvh flex-col">
         <SiteHeader />
-        <main className="flex-1">{children}</main>
+        <main className="flex flex-1 flex-col">{children}</main>
       </body>
     </html>
   );

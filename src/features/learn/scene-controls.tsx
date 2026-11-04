@@ -40,7 +40,7 @@ export function RangeField({
         step={step}
         value={value}
         onChange={(event) => onChange(event.target.valueAsNumber)}
-        className="h-8 w-full accent-prussian"
+        className="h-11 w-full cursor-pointer accent-prussian"
       />
     </div>
   );
@@ -48,48 +48,35 @@ export function RangeField({
 
 type SceneControlsProps = {
   scene: Scene;
-  disabled: boolean;
   onChange: (scene: Scene) => void;
 };
 
-export function SceneControls({
-  scene,
-  disabled,
-  onChange,
-}: SceneControlsProps) {
+export function SceneControls({ scene, onChange }: SceneControlsProps) {
   return (
-    <fieldset disabled={disabled} className="border-t border-rule pt-4">
-      <legend className="pr-3 text-xl">Mueve la escena</legend>
-      {disabled && (
-        <p className="mt-1 text-ink-soft">
-          Responde a la predicción para mover los controles.
-        </p>
-      )}
-      <div className="mt-3 space-y-2">
-        <RangeField
-          id="mass-a"
-          label="Masa de A"
-          marker="size-3 rounded-full bg-prussian"
-          limits={SCENE_LIMITS.mass}
-          value={scene.massA}
-          onChange={(massA) => onChange({ ...scene, massA })}
-        />
-        <RangeField
-          id="mass-b"
-          label="Masa de B"
-          marker="size-3 rotate-45 bg-verdigris"
-          limits={SCENE_LIMITS.mass}
-          value={scene.massB}
-          onChange={(massB) => onChange({ ...scene, massB })}
-        />
-        <RangeField
-          id="distance"
-          label="Distancia"
-          limits={SCENE_LIMITS.distance}
-          value={scene.distance}
-          onChange={(distance) => onChange({ ...scene, distance })}
-        />
-      </div>
-    </fieldset>
+    <div className="mt-4 space-y-3">
+      <RangeField
+        id="mass-a"
+        label="Masa de A"
+        marker="size-3 rounded-full bg-prussian"
+        limits={SCENE_LIMITS.mass}
+        value={scene.massA}
+        onChange={(massA) => onChange({ ...scene, massA })}
+      />
+      <RangeField
+        id="mass-b"
+        label="Masa de B"
+        marker="size-3 rotate-45 bg-verdigris"
+        limits={SCENE_LIMITS.mass}
+        value={scene.massB}
+        onChange={(massB) => onChange({ ...scene, massB })}
+      />
+      <RangeField
+        id="distance"
+        label="Distancia"
+        limits={SCENE_LIMITS.distance}
+        value={scene.distance}
+        onChange={(distance) => onChange({ ...scene, distance })}
+      />
+    </div>
   );
 }

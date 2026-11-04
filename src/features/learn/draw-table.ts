@@ -1,13 +1,8 @@
-import {
-  formatMultiple,
-  relativeForce,
-  SCENE_LIMITS,
-  type Scene,
-} from "./scene";
+import { relativeForce, SCENE_LIMITS, type Scene } from "./scene";
 
 // Canvas no lee clases de Tailwind: son los mismos valores que globals.css.
 const COLORS = {
-  paper: "#eef0e8",
+  stage: "#f6f7f1",
   ink: "#1b2233",
   prussian: "#1f4e79",
   cinnabar: "#a92c1c",
@@ -15,9 +10,15 @@ const COLORS = {
 };
 
 // Con estos dos valores, dos cuerpos de masa máxima no se solapan a la distancia
-// mínima: 0,42 + 0,42 · 1,25 = 0,945 unidades.
-const MAX_RADIUS_IN_UNITS = 0.42;
-const DIAMOND_SCALE = 1.25;
+// mínima: 0,47 + 0,47 · 1,1 = 0,987 unidades.
+const MAX_RADIUS_IN_UNITS = 0.47;
+const DIAMOND_SCALE = 1.1;
+
+/** Margen a cada lado, en unidades: justo lo que ocupa el cuerpo mayor. */
+const SIDE_MARGIN_IN_UNITS = 0.6;
+
+/** Espacio reservado abajo para la regla y su etiqueta. */
+const RULE_SPACE = 44;
 
 // Con esta escala, ×¼ aún se ve en móvil y ×4 cabe a cualquier distancia.
 const ARROW_UNITS_PER_MULTIPLE = 0.75;
@@ -54,8 +55,8 @@ function arrowSize(
 }
 
 export function computeLayout(width: number, scene: Scene): TableLayout {
-  // Una unidad de margen a cada lado. La distancia va a escala real.
-  const unit = width / (SCENE_LIMITS.distance.max + 2);
+  // La distancia va a escala real en todo el ancho disponible.
+  const unit = width / (SCENE_LIMITS.distance.max + 2 * SIDE_MARGIN_IN_UNITS);
   const separation = scene.distance * unit;
   const xA = width / 2 - separation / 2;
   const xB = width / 2 + separation / 2;
@@ -95,46 +96,55 @@ function traceDiamond(
   context.closePath();
 }
 
-// Rayado a 45 grados, como el sombreado de un grabado.
-function hatch(
-  context: CanvasRenderingContext2D,
-  x: number,
-  y: number,
-  extent: number,
-) {
-  const spacing = 4;
-  context.lineWidth = 1;
-  context.beginPath();
-  for (let offset = -2 * extent; offset <= 2 * extent; offset += spacing) {
-    context.moveTo(x + offset - extent, y + extent);
-    context.lineTo(x + offset + extent, y - extent);
-  }
-  context.stroke();
-}
-
 function drawBody(
   context: CanvasRenderingContext2D,
   traceShape: () => void,
   color: string,
-  x: number,
-  y: number,
-  extent: number,
 ) {
   context.save();
-  context.strokeStyle = color;
-  context.fillStyle = COLORS.paper;
-
+  context.fillStyle = color;
   traceShape();
   context.fill();
-
-  context.save();
-  traceShape();
-  context.clip();
-  hatch(context, x, y, extent);
   context.restore();
+}
 
+/**
+ * Contorno de la escena de referencia, encima de los cuerpos: un cuerpo que ha
+ * crecido lo taparía. El halo claro hace que se lea también sobre el relleno.
+ */
+function drawOutline(
+  context: CanvasRenderingContext2D,
+  traceShape: () => void,
+  color: string,
+) {
+  context.save();
+  context.strokeStyle = COLORS.stage;
+  context.lineWidth = 3.5;
   traceShape();
+  context.stroke();
+  context.strokeStyle = color;
   context.lineWidth = 1.5;
+  context.setLineDash([5, 4]);
+  traceShape();
+  context.stroke();
+  context.restore();
+}
+
+/** Marca hasta dónde llegaba la flecha en la escena de referencia. */
+function drawArrowMark(
+  context: CanvasRenderingContext2D,
+  x: number,
+  y: number,
+) {
+  context.save();
+  context.strokeStyle = COLORS.stage;
+  context.lineWidth = 5;
+  context.beginPath();
+  context.moveTo(x, y - 10);
+  context.lineTo(x, y + 10);
+  context.stroke();
+  context.strokeStyle = COLORS.ink;
+  context.lineWidth = 2;
   context.stroke();
   context.restore();
 }
@@ -147,8 +157,8 @@ function drawArrow(
   direction: 1 | -1,
   { length, isClipped }: ArrowSize,
 ) {
-  const headLength = Math.min(11, length);
-  const headHalfWidth = Math.max(headLength / 2, 3);
+  const headLength = Math.min(16, length);
+  const headHalfWidth = Math.max(headLength / 2, 4);
   const tipX = x + direction * length;
   const headBaseX = tipX - direction * headLength;
 
@@ -156,7 +166,7 @@ function drawArrow(
   context.strokeStyle = COLORS.cinnabar;
   context.fillStyle = COLORS.cinnabar;
 
-  context.lineWidth = 2.5;
+  context.lineWidth = 4;
   context.beginPath();
   context.moveTo(x, y);
   context.lineTo(headBaseX, y);
@@ -172,7 +182,7 @@ function drawArrow(
   if (isClipped) {
     // Corte en la flecha, como el de un eje partido: aquí la escala se rompe.
     const breakX = headBaseX - direction * 14;
-    context.strokeStyle = COLORS.paper;
+    context.strokeStyle = COLORS.stage;
     context.lineWidth = 5;
     context.beginPath();
     context.moveTo(breakX - 3, y + 7);
@@ -190,7 +200,7 @@ function drawStem(
 ) {
   context.save();
   context.strokeStyle = COLORS.cinnabar;
-  context.lineWidth = 1;
+  context.lineWidth = 1.5;
   context.beginPath();
   context.moveTo(x, fromY);
   context.lineTo(x, toY);
@@ -228,21 +238,24 @@ type DrawOptions = {
   height: number;
   scene: Scene;
   forcesVisible: boolean;
+  /** Escena con la que comparar. Null si no hay nada que comparar. */
+  reference: Scene | null;
   fontFamily: string;
 };
 
 export function drawTable(
   context: CanvasRenderingContext2D,
-  { width, height, scene, forcesVisible, fontFamily }: DrawOptions,
+  { width, height, scene, forcesVisible, reference, fontFamily }: DrawOptions,
 ) {
   const layout = computeLayout(width, scene);
   const { xA, xB, radiusA, halfDiagonalB, arrow } = layout;
-  const axisY = height * 0.42;
+  const ruleY = height - RULE_SPACE + 8;
+  const axisY = (height - RULE_SPACE) / 2;
 
   // Cada flecha va en su propio carril: así se ven enteras aunque se crucen.
   const maxExtent = MAX_RADIUS_IN_UNITS * layout.unit * DIAMOND_SCALE;
-  const laneA = axisY - maxExtent - 12;
-  const laneB = axisY + maxExtent + 12;
+  const laneA = axisY - maxExtent - 16;
+  const laneB = axisY + maxExtent + 16;
 
   context.clearRect(0, 0, width, height);
 
@@ -250,26 +263,34 @@ export function drawTable(
     context,
     () => traceCircle(context, xA, axisY, radiusA),
     COLORS.prussian,
-    xA,
-    axisY,
-    radiusA,
   );
   drawBody(
     context,
     () => traceDiamond(context, xB, axisY, halfDiagonalB),
     COLORS.verdigris,
-    xB,
-    axisY,
-    halfDiagonalB,
   );
 
-  context.font = `italic 16px ${fontFamily}`;
+  const before = reference && computeLayout(width, reference);
+  if (before) {
+    drawOutline(
+      context,
+      () => traceCircle(context, before.xA, axisY, before.radiusA),
+      COLORS.prussian,
+    );
+    drawOutline(
+      context,
+      () => traceDiamond(context, before.xB, axisY, before.halfDiagonalB),
+      COLORS.verdigris,
+    );
+  }
+
+  context.font = `italic 18px ${fontFamily}`;
   context.textAlign = "right";
   context.fillStyle = COLORS.prussian;
-  context.fillText("A", xA - 7, laneA + 5);
+  context.fillText("A", xA - 8, laneA + 6);
   context.textAlign = "left";
   context.fillStyle = COLORS.verdigris;
-  context.fillText("B", xB + 7, laneB + 5);
+  context.fillText("B", xB + 8, laneB + 6);
 
   if (forcesVisible) {
     drawStem(context, xA, axisY - radiusA, laneA);
@@ -277,16 +298,19 @@ export function drawTable(
     drawArrow(context, xA, laneA, 1, arrow);
     drawArrow(context, xB, laneB, -1, arrow);
 
-    const multiple = formatMultiple(relativeForce(scene));
-    const label = arrow.isClipped ? `${multiple}, no cabe a escala` : multiple;
-    context.font = `15px ${fontFamily}`;
-    context.fillStyle = COLORS.cinnabar;
-    context.textAlign = "left";
-    context.fillText(label, xA, laneA - 8);
-    context.textAlign = "right";
-    context.fillText(label, xB, laneB + 20);
+    if (before) {
+      drawArrowMark(context, xA + before.arrow.length, laneA);
+      drawArrowMark(context, xB - before.arrow.length, laneB);
+    }
+
+    if (arrow.isClipped) {
+      context.font = `15px ${fontFamily}`;
+      context.fillStyle = COLORS.cinnabar;
+      context.textAlign = "left";
+      context.fillText("no cabe a escala", xA, laneA - 10);
+    }
   }
 
   context.font = `italic 15px ${fontFamily}`;
-  drawDistanceRule(context, layout, scene.distance, height - 34);
+  drawDistanceRule(context, layout, scene.distance, ruleY);
 }

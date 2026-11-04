@@ -1,10 +1,10 @@
 import { LAUNCH_LIMITS, type Launch } from "@/lib/physics/moon-launch";
+import { secondaryAction } from "./controls";
 import { formatSpeed } from "./launch-text";
 import { RangeField } from "./scene-controls";
 
 type LaunchControlsProps = {
   launch: Launch;
-  disabled: boolean;
   isFlying: boolean;
   onChange: (launch: Launch) => void;
   onLaunch: () => void;
@@ -12,24 +12,16 @@ type LaunchControlsProps = {
 
 export function LaunchControls({
   launch,
-  disabled,
   isFlying,
   onChange,
   onLaunch,
 }: LaunchControlsProps) {
   return (
-    <fieldset disabled={disabled} className="border-t border-rule pt-4">
-      <legend className="pr-3 text-xl">Prepara el lanzamiento</legend>
-      {disabled ? (
-        <p className="mt-1 text-ink-soft">
-          Responde a la predicción para lanzar.
-        </p>
-      ) : (
-        <p className="mt-1 text-ink-soft">
-          Una velocidad de 1 es la de una órbita circular a esta altura.
-        </p>
-      )}
-      <div className="mt-3 space-y-2">
+    <div className="mt-4">
+      <p className="text-ink-soft">
+        Una velocidad de 1 es la de una órbita circular a esta altura.
+      </p>
+      <div className="mt-3 space-y-3">
         <RangeField
           id="launch-speed"
           label="Velocidad"
@@ -53,10 +45,10 @@ export function LaunchControls({
         type="button"
         disabled={isFlying}
         onClick={onLaunch}
-        className="mt-3 min-h-11 cursor-pointer bg-prussian px-5 text-paper disabled:cursor-not-allowed disabled:bg-paper-deep disabled:text-ink-soft"
+        className={`${secondaryAction} mt-3 w-full border-prussian text-prussian`}
       >
         Lanzar la luna
       </button>
-    </fieldset>
+    </div>
   );
 }
