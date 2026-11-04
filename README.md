@@ -2,7 +2,7 @@
 
 Aplicación web para entender la ley de gravitación de Newton sin saber física, y para explorar seis órbitas periódicas del problema de los tres cuerpos. Prueba técnica para BinPar.
 
-**Versión online:** URL_PUBLICA
+**Versión online:** https://gravitacion-binpar.vercel.app/
 
 ## Qué incluye
 
