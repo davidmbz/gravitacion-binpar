@@ -1,3 +1,5 @@
+import { INITIAL_LAUNCH } from "@/lib/physics/moon-launch";
+import { STEPS } from "./steps";
 import { describe, expect, it } from "vitest";
 import {
   areForcesVisible,
@@ -57,9 +59,21 @@ describe("learnReducer", () => {
     expect(state.scene).toEqual(INITIAL_SCENE);
   });
 
+  it("cambiar de paso devuelve el lanzamiento al inicial", () => {
+    const launch = { speed: 1.5, angle: 20 };
+    const state = learnReducer(answer(INITIAL_LEARN_STATE), {
+      type: "setLaunch",
+      launch,
+    });
+    expect(state.launch).toEqual(launch);
+    expect(next(state).launch).toEqual(INITIAL_LAUNCH);
+  });
+
   it("no pasa del último paso", () => {
-    const last = answer(next(answer(next(answer(INITIAL_LEARN_STATE)))));
-    expect(last.stepIndex).toBe(2);
+    const last = answer(
+      next(answer(next(answer(next(answer(INITIAL_LEARN_STATE)))))),
+    );
+    expect(last.stepIndex).toBe(STEPS.length - 1);
     expect(next(last)).toBe(last);
   });
 

@@ -6,9 +6,20 @@ Aplicación web para entender la ley de gravitación de Newton sin saber física
 
 ## Qué incluye
 
-* **Aprende (`/aprende`):** dos cuerpos con masas y distancia ajustables, flechas de fuerza y tres pasos: atracción mutua, masa y distancia. En cada paso predices antes de ver el resultado, y la app corrige tu respuesta.
-* **Tutor:** un modelo de lenguaje explica el porqué de tus dudas y puede mover la mesa para enseñártelo.
-* **Órbitas (`/orbitas`):** Lagrange, Figura de ocho, Butterfly I, Goggles, Moth I y Yin-Yang I. Cada una tiene URL propia, animación y controles de reproducción. Al volver a la galería se conservan el filtro, el scroll y el foco.
+* **Aprende (`/aprende`):** dos cuerpos con masas y distancia ajustables, flechas de fuerza y cuatro pasos: atracción mutua, masa, distancia y caer sin llegar. En cada paso predices antes de ver el resultado, y la app corrige tu respuesta.
+* **Lanzar una luna:** en el último paso eliges velocidad y ángulo, y ves si orbita, choca o escapa.
+* **Lo que has demostrado:** un perfil calculado a partir de tus respuestas, con los conceptos acertados y los errores concretos.
+* **Tutor:** un modelo de lenguaje explica el porqué de tus dudas con ese perfil a la vista, y puede mover la mesa para enseñártelo. Ofrece preguntas sugeridas que cambian según tu respuesta.
+* **Órbitas (`/orbitas`):** Lagrange, Figura de ocho, Butterfly I, Goggles, Moth I y Yin-Yang I. Cada una tiene URL propia, imagen para compartir, animación y controles de reproducción. Al volver a la galería se conservan el filtro, el scroll y el foco.
+* **Perturbar una órbita:** en el detalle, compara la órbita con una copia desplazada una milésima y mide cuánto se separan.
+
+### Extras del enunciado
+
+| Extra | Estado |
+| --- | --- |
+| La experiencia se adapta a lo que el usuario demuestra saber | Hecho: perfil determinista, sugerencias y contexto del tutor |
+| El modelo puede operar la aplicación | Hecho: `configurar_escena` |
+| El usuario puede buscar órbitas propias | No incluido |
 
 ## Ejecutar en local
 
@@ -40,7 +51,7 @@ pnpm test:e2e
 pnpm build
 ```
 
-Para correr los e2e contra la versión publicada, define `E2E_BASE_URL`.
+Para correr los e2e contra la versión publicada, define `E2E_BASE_URL`. GitHub Actions ejecuta lint, typecheck, tests y build en cada pull request y en `main`. Los e2e se ejecutan en local.
 
 ## Decisiones técnicas
 
@@ -48,9 +59,12 @@ El registro completo, con alternativas y costes, está en [docs/decisiones.md](d
 
 * **Física propia en TypeScript.** Integrador DOPRI5 adaptativo con tolerancia 1e-13. Las órbitas tienen encuentros muy cercanos, y un paso fijo exigiría pasos diminutos en toda la trayectoria.
 * **Un periodo calculado, reproducido en bucle.** Estas órbitas son inestables: integrarlas sin límite acaba rompiéndolas. Se muestrean 4096 instantes uniformes y se interpola con Hermite. El bucle de pintado nunca decide un paso físico.
-* **Galería sin JavaScript de animación.** Seis SVG generados en el servidor, sin bucles compitiendo.
+* **Galería sin bucles compitiendo.** Seis SVG generados en el servidor. Solo se anima la tarjeta con ratón o foco de teclado, y un único bucle garantiza que no haya dos a la vez.
 * **Estado al volver.** El filtro vive en la URL, el scroll lo restaura el navegador y el enlace de vuelta usa el historial. No depende de Activity, que solo guarda tres rutas.
 * **Tutor en el servidor.** El modelo solo opera la app con `configurar_escena`, validada con Zod. La corrección de las predicciones nunca depende del modelo.
+* **Perfil derivado.** Es una función pura de las respuestas. Al servidor solo llegan identificadores validados, y él lo recalcula: el cliente no puede escribir en el prompt.
+* **Perturbación honesta.** Desplaza dos cuerpos en sentidos opuestos para conservar el centro de masas. Original y perturbada se integran igual, durante el mismo tiempo.
+* **Luna clasificada de forma exacta.** Energía y momento angular dicen si orbita, choca o escapa. DOPRI5 dibuja la trayectoria, y un test comprueba que ambos coinciden en los 169 lanzamientos posibles.
 
 ## Protección del endpoint del tutor
 
@@ -76,15 +90,23 @@ El alcance temático se pide en el prompt, y el texto de la persona se trata com
 * Lagrange es exacta en teoría, pero es la más inestable de las seis: multiplica una perturbación por ~85 en cada periodo.
 * Yin-Yang I usa la variante a, que aguanta más periodos. No se ha contrastado su forma con una imagen de referencia.
 
+**Simulaciones interactivas**
+
+* La perturbación es una sola dirección y un tiempo limitado: muestra un caso, no mide la estabilidad de la órbita. Parte de la separación puede ser desfase, sobre todo en la figura de ocho.
+* El lanzamiento usa un planeta fijo y una luna de masa despreciable. Una órbita muy abierta se corta al salir de la mesa, y un choque posterior al tramo calculado se anuncia sin verse.
+
 **Aplicación**
 
-* El detalle integra en el hilo principal al abrir, sin Worker. En un Mac tarda 8–36 ms. No se ha medido en un móvil real.
+* Las órbitas se integran en el hilo principal, sin Worker. Abrir el detalle tarda 8–36 ms en un Mac. Perturbar tarda de 53 a 181 ms, y hasta 1,3 s con la CPU ralentizada 6×, con un aviso visible. No se ha medido en un móvil real.
 * Las flechas de Aprende son lineales con la fuerza. Por encima de lo que cabe se marcan como fuera de escala, y por debajo tienen una longitud mínima. El número siempre es exacto.
-* Una órbita desconocida muestra la página de no encontrado con `noindex`. En Vercel responde 404, pero con `next start` local responde 200, porque el streaming ya ha enviado la cabecera.
+* "Lo que has demostrado" se basa en una pregunta por concepto, sin reintento. Es una señal débil, y la interfaz lo dice.
+* La adaptación del tutor depende de que el modelo siga el prompt. El perfil sí es determinista.
 * El progreso de Aprende y la conversación no sobreviven a una recarga.
+* Una órbita desconocida muestra la página de no encontrado con `noindex`. En Vercel responde 404, pero con `next start` local responde 200, porque el streaming ya ha enviado la cabecera.
+* Las imágenes para compartir usan la fuente por defecto de `ImageResponse`, no la de la web.
 * Solo se ha probado en Chromium, sin lector de pantalla real.
 
-**Fuera de alcance por el plazo:** perfil adaptativo del alumno, lanzamiento de una luna, vistas previas animadas en la galería, buscador de órbitas propias, CI, imágenes Open Graph y pruebas multi-navegador.
+**Fuera de alcance:** buscador de órbitas propias, e2e en CI y pruebas multi-navegador.
 
 ## Uso de IA
 

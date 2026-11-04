@@ -1,15 +1,52 @@
 import { describe, expect, it } from "vitest";
 import { ORBITS } from "@/lib/physics/orbits";
 import { sampleOrbit } from "@/lib/physics/sampling";
-import { buildTrajectory } from "./trajectory";
+import { STATE_SIZE } from "@/lib/physics/three-body";
+import {
+  buildTrajectory,
+  frameOf,
+  stageAspectRatio,
+  unionFrames,
+} from "./trajectory";
 
 describe("buildTrajectory", () => {
   const samples = sampleOrbit(ORBITS[2], 1024);
 
-  it("genera un trazado por cuerpo con margen sobre la órbita", () => {
-    const { paths, halfSize } = buildTrajectory(samples, 0.02);
-    expect(paths).toHaveLength(3);
-    expect(halfSize).toBeGreaterThan(1);
+  it("genera un trazado por cuerpo", () => {
+    expect(buildTrajectory(samples, 0.02).paths).toHaveLength(3);
+  });
+
+  it("encuadra la órbita con margen en todos los lados", () => {
+    const { frame } = buildTrajectory(samples, 0.02);
+    for (let sample = 0; sample <= samples.intervals; sample++) {
+      for (const body of [0, 1, 2]) {
+        const x = samples.states[sample * STATE_SIZE + 2 * body];
+        const y = -samples.states[sample * STATE_SIZE + 2 * body + 1];
+        expect(x).toBeGreaterThan(frame.x);
+        expect(x).toBeLessThan(frame.x + frame.width);
+        expect(y).toBeGreaterThan(frame.y);
+        expect(y).toBeLessThan(frame.y + frame.height);
+      }
+    }
+  });
+
+  it("se ajusta a la forma: Butterfly I es más ancha que alta", () => {
+    const { width, height } = frameOf(samples);
+    expect(width).toBeGreaterThan(height * 2);
+  });
+
+  it("une encuadres sin recortar ninguno", () => {
+    const union = unionFrames(
+      { x: -1, y: -1, width: 2, height: 2 },
+      { x: 0, y: -3, width: 4, height: 1 },
+    );
+    expect(union).toEqual({ x: -1, y: -3, width: 5, height: 4 });
+  });
+
+  it("limita la proporción del lienzo", () => {
+    const frame = { x: 0, y: 0, width: 10, height: 1 };
+    expect(stageAspectRatio(frame)).toBe(2);
+    expect(stageAspectRatio({ ...frame, width: 1, height: 3 })).toBe(1);
   });
 
   it("reduce puntos al aumentar la separación mínima", () => {

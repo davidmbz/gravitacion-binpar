@@ -1,6 +1,7 @@
 import type Anthropic from "@anthropic-ai/sdk";
 import { describe, expect, it, vi } from "vitest";
 import { INITIAL_SCENE } from "@/features/learn/scene";
+import { INITIAL_LAUNCH } from "@/lib/physics/moon-launch";
 import type { TutorRequest } from "./schemas";
 import { runTutor, type CreateMessage, type ModelReply } from "./tutor";
 
@@ -8,7 +9,13 @@ const request: TutorRequest = {
   messages: [{ role: "user", content: "Enséñame la distancia" }],
   scene: INITIAL_SCENE,
   stepId: "distance",
-  answerId: "half",
+  launch: INITIAL_LAUNCH,
+  answers: {
+    attraction: "equal-and-opposite",
+    mass: null,
+    distance: "half",
+    orbit: null,
+  },
 };
 
 function text(value: string): Anthropic.TextBlock {
@@ -136,12 +143,56 @@ describe("runTutor", () => {
       stop_reason: "end_turn",
     });
 
-    await runTutor(model, "modelo", { ...request, answerId: null });
+    const answers = { ...request.answers, distance: null };
+    await runTutor(model, "modelo", { ...request, answers });
 
     expect(model.mock.calls[0][0].tools).toEqual([]);
     expect(JSON.stringify(model.mock.calls[0][0].messages)).toContain(
       "Pendiente",
     );
+  });
+
+  it("no ofrece la herramienta en el paso de la luna", async () => {
+    const model = fakeModel({
+      content: [text("Prueba con 1,5.")],
+      stop_reason: "end_turn",
+    });
+    const answers = { ...request.answers, orbit: "fast-sideways" };
+
+    await runTutor(model, "modelo", { ...request, stepId: "orbit", answers });
+
+    expect(model.mock.calls[0][0].tools).toEqual([]);
+    expect(JSON.stringify(model.mock.calls[0][0].messages)).toContain(
+      "Lanzamiento preparado: velocidad 0,7",
+    );
+  });
+
+  it("no revela el resultado del lanzamiento antes de responder", async () => {
+    const model = fakeModel({
+      content: [text("¿Tú qué crees?")],
+      stop_reason: "end_turn",
+    });
+
+    await runTutor(model, "modelo", { ...request, stepId: "orbit" });
+
+    const sent = JSON.stringify(model.mock.calls[0][0].messages);
+    expect(sent).toContain("aún bloqueado");
+    expect(sent).not.toContain("Choque");
+  });
+
+  it("incluye el perfil derivado en el bloque de estado", async () => {
+    const model = fakeModel({
+      content: [text("Respuesta")],
+      stop_reason: "end_turn",
+    });
+
+    await runTutor(model, "modelo", request);
+
+    const sent = JSON.stringify(model.mock.calls[0][0].messages);
+    expect(sent).toContain("Demostrado: Atracción mutua.");
+    expect(sent).toContain("Por reforzar: Distancia.");
+    expect(sent).toContain("proporción directa a la distancia");
+    expect(sent).toContain("Sin responder: Masa, Caer sin llegar.");
   });
 
   it("separa el texto de la persona del bloque de estado", async () => {

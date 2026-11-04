@@ -1,117 +1,205 @@
 "use client";
 
-import { useEffect, useRef, useState, useSyncExternalStore } from "react";
+import {
+  useCallback,
+  useEffect,
+  useRef,
+  useState,
+  type ReactNode,
+} from "react";
+import { useReducedMotion } from "@/components/use-reduced-motion";
 import { findOrbit } from "@/lib/physics/orbits";
 import {
-  positionsAt,
-  sampleOrbit,
-  type OrbitSamples,
-} from "@/lib/physics/sampling";
-import { BODY_COUNT, POSITION_SIZE } from "@/lib/physics/three-body";
+  compareWithPerturbed,
+  COMPARISON_DURATION,
+  type OrbitComparison,
+} from "@/lib/physics/perturbation";
+import { sampleOrbit, type OrbitSamples } from "@/lib/physics/sampling";
+import {
+  describeComparison,
+  formatSeparation,
+  formatTime,
+} from "./comparison-text";
+import { paintOrbit, sizeCanvas, startLoop } from "./paint-orbit";
+import {
+  frameOf,
+  stageAspectRatio,
+  unionFrames,
+  viewBoxOf,
+  type Frame,
+} from "./trajectory";
 
 type Playback = "playing" | "paused";
 
+type PlayerView =
+  | { kind: "periodic" }
+  | { kind: "calculating" }
+  | { kind: "comparison"; comparison: OrbitComparison; frame: Frame };
+
 const SPEEDS = [0.25, 0.5, 1, 2] as const;
-
-/** A velocidad 1, un segundo de pantalla son 1 unidad de tiempo de la simulación. */
-const BASE_RATE = 1;
-const TRAIL_SEGMENTS = 40;
-/** Duración de la estela, en unidades de tiempo de la simulación. */
-const TRAIL_DURATION = 0.5;
-const MAX_PIXEL_RATIO = 2;
 const SCRUB_STEPS = 1000;
+const PLAYER_STYLE = { bodyRadius: 7, trailDuration: 0.5, loops: true };
+const COMPARISON_STYLE = { ...PLAYER_STYLE, loops: false };
 
-const BODY_COLORS = ["#a92c1c", "#1f4e79", "#1f6655"];
-const BODY_RADIUS = 7;
+/** Margen para que el navegador pinte el aviso antes del cálculo. */
+const PAINT_DELAY_MS = 50;
+
+/** La fase 1 equivaldría a volver a 0: el tramo termina justo antes. */
+const LAST_PHASE = 1 - 1e-9;
+
+const secondaryButton =
+  "min-h-11 cursor-pointer border border-rule px-4 hover:bg-paper-deep disabled:cursor-not-allowed disabled:text-ink-soft";
+
+function loadOrbit(slug: string) {
+  const orbit = findOrbit(slug);
+  if (!orbit) throw new Error(`Órbita desconocida: ${slug}`);
+  return orbit;
+}
 
 interface OrbitPlayerProps {
   slug: string;
-  halfSize: number;
+  frame: Frame;
   name: string;
-  children: React.ReactNode;
+  children: ReactNode;
 }
 
-export function OrbitPlayer({
-  slug,
-  halfSize,
-  name,
-  children,
-}: OrbitPlayerProps) {
+export function OrbitPlayer({ slug, frame, name, children }: OrbitPlayerProps) {
   const reducedMotion = useReducedMotion();
   // Sin elección de la persona, la preferencia del sistema decide si arranca.
   const [chosenPlayback, setChosenPlayback] = useState<Playback | null>(null);
   const playback = chosenPlayback ?? (reducedMotion ? "paused" : "playing");
   const [speed, setSpeed] = useState<number>(1);
+  const [view, setView] = useState<PlayerView>({ kind: "periodic" });
+  const stageRef = useRef<HTMLDivElement>(null);
   const canvasRef = useRef<HTMLCanvasElement>(null);
   const scrubberRef = useRef<HTMLInputElement>(null);
+  const readoutRef = useRef<HTMLParagraphElement>(null);
   const samplesRef = useRef<OrbitSamples | null>(null);
   const phaseRef = useRef(0);
+
+  const paint = useCallback(() => {
+    const canvas = canvasRef.current;
+    if (!canvas) return;
+
+    if (view.kind === "comparison") {
+      const { perturbed, original } = view.comparison;
+      paintOrbit(
+        canvas,
+        perturbed,
+        phaseRef.current,
+        view.frame,
+        COMPARISON_STYLE,
+        original,
+      );
+    } else if (samplesRef.current) {
+      paintOrbit(
+        canvas,
+        samplesRef.current,
+        phaseRef.current,
+        frame,
+        PLAYER_STYLE,
+      );
+    }
+  }, [frame, view]);
+
+  const seekTo = useCallback(
+    (phase: number) => {
+      phaseRef.current = phase;
+      if (scrubberRef.current) {
+        scrubberRef.current.value = String(Math.round(phase * SCRUB_STEPS));
+      }
+      // Se escribe directo en el DOM: un render por fotograma no aporta nada.
+      if (readoutRef.current && view.kind === "comparison") {
+        const { separation } = view.comparison;
+        const sample = Math.round(phase * (separation.length - 1));
+        readoutRef.current.textContent = `Instante ${formatTime(phase * COMPARISON_DURATION)}. Separación: ${formatSeparation(separation[sample])}.`;
+      }
+      paint();
+    },
+    [paint, view],
+  );
 
   // Integra un periodo al abrir. El bucle de pintado solo lee estas muestras:
   // nunca decide un paso físico.
   useEffect(() => {
-    const orbit = findOrbit(slug);
-    if (!orbit) throw new Error(`Órbita desconocida: ${slug}`);
-    samplesRef.current ??= sampleOrbit(orbit);
+    samplesRef.current ??= sampleOrbit(loadOrbit(slug));
 
     const canvas = canvasRef.current;
     if (!canvas) return;
 
-    const resize = () => {
-      const ratio = Math.min(window.devicePixelRatio, MAX_PIXEL_RATIO);
-      canvas.width = canvas.clientWidth * ratio;
-      canvas.height = canvas.clientHeight * ratio;
-      paint(canvas, samplesRef.current, phaseRef.current, halfSize);
-    };
-    const observer = new ResizeObserver(resize);
+    const observer = new ResizeObserver(() => {
+      sizeCanvas(canvas);
+      // Corre también al cambiar de vista: alinea barra y lectura aunque esté en pausa.
+      seekTo(phaseRef.current);
+    });
     observer.observe(canvas);
 
     return () => observer.disconnect();
-  }, [slug, halfSize]);
+  }, [slug, seekTo]);
 
   useEffect(() => {
     if (playback !== "playing") return;
 
-    let frame = 0;
-    let previous: number | null = null;
-
-    const tick = (now: number) => {
-      const samples = samplesRef.current;
-      const canvas = canvasRef.current;
-      if (samples && canvas) {
-        const seconds = previous === null ? 0 : (now - previous) / 1000;
-        phaseRef.current =
-          (phaseRef.current + (seconds * speed * BASE_RATE) / samples.period) %
-          1;
-        paint(canvas, samples, phaseRef.current, halfSize);
-        if (scrubberRef.current) {
-          scrubberRef.current.value = String(
-            Math.round(phaseRef.current * SCRUB_STEPS),
-          );
-        }
-      }
-      previous = now;
-      frame = requestAnimationFrame(tick);
-    };
-
-    frame = requestAnimationFrame(tick);
     // Activity también ejecuta esta limpieza al ocultar la ruta.
-    return () => cancelAnimationFrame(frame);
-  }, [playback, speed, halfSize]);
+    return startLoop((seconds) => {
+      if (view.kind === "comparison") {
+        const next = phaseRef.current + (seconds * speed) / COMPARISON_DURATION;
+        seekTo(Math.min(next, LAST_PHASE));
+        if (next >= LAST_PHASE) setChosenPlayback("paused");
+      } else if (samplesRef.current) {
+        const { duration } = samplesRef.current;
+        seekTo((phaseRef.current + (seconds * speed) / duration) % 1);
+      }
+    });
+  }, [playback, speed, seekTo, view]);
 
-  function seek(phase: number) {
-    phaseRef.current = phase;
-    if (scrubberRef.current) {
-      scrubberRef.current.value = String(Math.round(phase * SCRUB_STEPS));
-    }
-    if (canvasRef.current) {
-      paint(canvasRef.current, samplesRef.current, phase, halfSize);
-    }
+  /** El SVG viene del servidor: solo cambia su encuadre, no su trazado. */
+  function frameFigure(target: Frame) {
+    stageRef.current
+      ?.querySelector("svg")
+      ?.setAttribute("viewBox", viewBoxOf(target));
+  }
+
+  function perturb() {
+    setView({ kind: "calculating" });
+    // El cálculo bloquea el hilo: antes hay que dejar pintar el aviso. Sin
+    // requestAnimationFrame, que no corre con la pestaña en segundo plano.
+    setTimeout(() => {
+      const comparison = compareWithPerturbed(loadOrbit(slug));
+      const fullFrame = unionFrames(
+        frame,
+        frameOf(comparison.original),
+        frameOf(comparison.perturbed),
+      );
+      frameFigure(fullFrame);
+      phaseRef.current = 0;
+      setView({ kind: "comparison", comparison, frame: fullFrame });
+    }, PAINT_DELAY_MS);
+  }
+
+  function backToPeriodic() {
+    frameFigure(frame);
+    phaseRef.current = 0;
+    setView({ kind: "periodic" });
+  }
+
+  function togglePlayback() {
+    const atEnd = view.kind === "comparison" && phaseRef.current >= LAST_PHASE;
+    if (playback === "paused" && atEnd) seekTo(0);
+    setChosenPlayback(playback === "playing" ? "paused" : "playing");
   }
 
   return (
     <div>
-      <div className="relative text-ink/30">
+      <div
+        ref={stageRef}
+        className={`relative w-full lg:min-h-72 ${
+          view.kind === "comparison"
+            ? "lg:max-h-[calc(100dvh-31rem)]"
+            : "lg:max-h-[calc(100dvh-21rem)]"
+        }`}
+        style={{ aspectRatio: stageAspectRatio(frame) }}
+      >
         {children}
         <canvas
           ref={canvasRef}
@@ -127,17 +215,15 @@ export function OrbitPlayer({
       >
         <button
           type="button"
-          onClick={() =>
-            setChosenPlayback(playback === "playing" ? "paused" : "playing")
-          }
-          className="min-h-11 min-w-24 border border-ink px-4 hover:bg-paper-deep"
+          onClick={togglePlayback}
+          className="min-h-11 min-w-24 cursor-pointer border border-ink px-4 hover:bg-paper-deep"
         >
           {playback === "playing" ? "Pausar" : "Reproducir"}
         </button>
         <button
           type="button"
-          onClick={() => seek(0)}
-          className="min-h-11 border border-rule px-4 hover:bg-paper-deep"
+          onClick={() => seekTo(0)}
+          className={secondaryButton}
         >
           Reiniciar
         </button>
@@ -155,119 +241,62 @@ export function OrbitPlayer({
             ))}
           </select>
         </label>
+        {view.kind === "comparison" ? (
+          <button
+            type="button"
+            onClick={backToPeriodic}
+            className={secondaryButton}
+          >
+            Sin perturbar
+          </button>
+        ) : (
+          <button
+            type="button"
+            disabled={view.kind === "calculating"}
+            onClick={perturb}
+            className={secondaryButton}
+          >
+            Perturbar
+          </button>
+        )}
         <label className="flex w-full items-center gap-3">
-          Momento del periodo
+          {view.kind === "comparison"
+            ? "Momento de la simulación"
+            : "Momento del periodo"}
           <input
             ref={scrubberRef}
             type="range"
             min={0}
             max={SCRUB_STEPS}
             defaultValue={0}
-            onChange={(event) => seek(Number(event.target.value) / SCRUB_STEPS)}
+            onChange={(event) =>
+              seekTo(
+                Math.min(Number(event.target.value) / SCRUB_STEPS, LAST_PHASE),
+              )
+            }
             className="min-h-11 flex-1 accent-prussian"
           />
         </label>
       </div>
+
+      <div role="status" className="mt-3 empty:hidden">
+        {view.kind === "calculating" && (
+          <p className="italic">Calculando las dos trayectorias</p>
+        )}
+        {view.kind === "comparison" && (
+          <>
+            <p>{describeComparison(view.comparison)}</p>
+            <p className="mt-2 text-ink-soft">
+              Relleno: órbita perturbada. Contorno: la misma órbita sin
+              perturbar. Es una sola prueba en un tiempo limitado, y parte de la
+              separación puede ser desfase.
+            </p>
+          </>
+        )}
+      </div>
+      {view.kind === "comparison" && (
+        <p ref={readoutRef} aria-hidden="true" className="mt-2 italic" />
+      )}
     </div>
   );
-}
-
-const REDUCED_MOTION_QUERY = "(prefers-reduced-motion: reduce)";
-
-function subscribeToReducedMotion(onChange: () => void): () => void {
-  const query = window.matchMedia(REDUCED_MOTION_QUERY);
-  query.addEventListener("change", onChange);
-  return () => query.removeEventListener("change", onChange);
-}
-
-/** En el servidor no se conoce la preferencia: se asume la opción sin movimiento. */
-function useReducedMotion(): boolean {
-  return useSyncExternalStore(
-    subscribeToReducedMotion,
-    () => window.matchMedia(REDUCED_MOTION_QUERY).matches,
-    () => true,
-  );
-}
-
-function paint(
-  canvas: HTMLCanvasElement,
-  samples: OrbitSamples | null,
-  phase: number,
-  halfSize: number,
-): void {
-  const context = canvas.getContext("2d");
-  if (!context || !samples) return;
-
-  const { width, height } = canvas;
-  const scale = width / (2 * halfSize);
-  const toX = (x: number) => (x + halfSize) * scale;
-  const toY = (y: number) => (halfSize - y) * scale;
-  const ratio = width / canvas.clientWidth;
-  const positions = new Float64Array(POSITION_SIZE);
-
-  context.clearRect(0, 0, width, height);
-  context.lineCap = "round";
-
-  // Estela: tramos cada vez más opacos hasta la posición actual.
-  const trail: Float64Array[] = [];
-  for (let segment = TRAIL_SEGMENTS; segment >= 0; segment--) {
-    const past =
-      phase - ((segment / TRAIL_SEGMENTS) * TRAIL_DURATION) / samples.period;
-    positionsAt(samples, past, positions);
-    trail.push(positions.slice());
-  }
-
-  for (let body = 0; body < BODY_COUNT; body++) {
-    context.strokeStyle = BODY_COLORS[body];
-    context.lineWidth = 2.5 * ratio;
-    for (let i = 1; i < trail.length; i++) {
-      context.globalAlpha = i / trail.length;
-      context.beginPath();
-      context.moveTo(
-        toX(trail[i - 1][2 * body]),
-        toY(trail[i - 1][2 * body + 1]),
-      );
-      context.lineTo(toX(trail[i][2 * body]), toY(trail[i][2 * body + 1]));
-      context.stroke();
-    }
-  }
-  context.globalAlpha = 1;
-
-  const current = trail[trail.length - 1];
-  for (let body = 0; body < BODY_COUNT; body++) {
-    context.fillStyle = BODY_COLORS[body];
-    drawBody(
-      context,
-      body,
-      toX(current[2 * body]),
-      toY(current[2 * body + 1]),
-      BODY_RADIUS * ratio,
-    );
-  }
-}
-
-/** Cada cuerpo tiene su forma: el color nunca es la única señal. */
-function drawBody(
-  context: CanvasRenderingContext2D,
-  body: number,
-  x: number,
-  y: number,
-  radius: number,
-): void {
-  context.beginPath();
-  if (body === 0) {
-    context.arc(x, y, radius, 0, 2 * Math.PI);
-  } else if (body === 1) {
-    context.moveTo(x, y - radius * 1.25);
-    context.lineTo(x + radius * 1.25, y);
-    context.lineTo(x, y + radius * 1.25);
-    context.lineTo(x - radius * 1.25, y);
-    context.closePath();
-  } else {
-    context.moveTo(x, y - radius * 1.3);
-    context.lineTo(x + radius * 1.2, y + radius);
-    context.lineTo(x - radius * 1.2, y + radius);
-    context.closePath();
-  }
-  context.fill();
 }

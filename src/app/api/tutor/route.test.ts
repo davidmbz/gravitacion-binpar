@@ -1,13 +1,15 @@
 import { afterEach, beforeEach, describe, expect, it, vi } from "vitest";
 import { INITIAL_SCENE } from "@/features/learn/scene";
 import { TUTOR_LIMITS } from "@/lib/ai/schemas";
+import { INITIAL_LAUNCH } from "@/lib/physics/moon-launch";
 import { POST } from "./route";
 
 const validBody = JSON.stringify({
   messages: [{ role: "user", content: "Hola" }],
   scene: INITIAL_SCENE,
   stepId: "mass",
-  answerId: null,
+  launch: INITIAL_LAUNCH,
+  answers: { attraction: null, mass: null, distance: null, orbit: null },
 });
 
 function post(body: string, ip: string): Request {

@@ -1,13 +1,15 @@
 import { describe, expect, it } from "vitest";
+import { TUTOR_LIMITS } from "@/lib/ai/schemas";
 import { INITIAL_SCENE, relativeForce } from "./scene";
 import { gradePrediction, STEPS } from "./steps";
 
 describe("STEPS", () => {
-  it("sigue el orden atracción, masa, distancia", () => {
+  it("sigue el orden atracción, masa, distancia, órbita", () => {
     expect(STEPS.map(({ id }) => id)).toEqual([
       "attraction",
       "mass",
       "distance",
+      "orbit",
     ]);
   });
 
@@ -54,4 +56,20 @@ describe("gradePrediction", () => {
   it("falla de forma explícita con una opción desconocida", () => {
     expect(() => gradePrediction(attraction, "inexistente")).toThrow();
   });
+});
+
+describe("preguntas sugeridas para el tutor", () => {
+  it.each(STEPS.map((step) => [step.title, step] as const))(
+    "%s tiene preguntas válidas para el tutor",
+    (_title, { tutorPrompts }) => {
+      const prompts = [...tutorPrompts.pending, ...tutorPrompts.answered];
+      expect(tutorPrompts.pending.length).toBeGreaterThan(0);
+      expect(tutorPrompts.answered.length).toBeGreaterThan(0);
+      for (const prompt of prompts) {
+        expect(prompt.length).toBeLessThanOrEqual(
+          TUTOR_LIMITS.userMessageChars,
+        );
+      }
+    },
+  );
 });

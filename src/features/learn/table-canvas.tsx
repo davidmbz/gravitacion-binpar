@@ -63,7 +63,7 @@ export function TableCanvas({
       ref={canvasRef}
       role="img"
       aria-label={description}
-      className="block h-44 w-full sm:h-56 lg:h-72"
+      className="block h-40 w-full sm:h-56 lg:h-72"
     />
   );
 }

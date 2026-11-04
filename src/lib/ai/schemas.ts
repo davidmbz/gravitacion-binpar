@@ -1,6 +1,7 @@
 import { z } from "zod";
 import { SCENE_LIMITS } from "@/features/learn/scene";
 import { STEPS } from "@/features/learn/steps";
+import { LAUNCH_LIMITS } from "@/lib/physics/moon-launch";
 
 /** Cada límite acota el coste de una petición. El README detalla qué no protegen. */
 export const TUTOR_LIMITS = {
@@ -26,6 +27,11 @@ export const sceneSchema = z.strictObject({
     .max(SCENE_LIMITS.distance.max),
 });
 
+export const launchSchema = z.strictObject({
+  speed: z.number().min(LAUNCH_LIMITS.speed.min).max(LAUNCH_LIMITS.speed.max),
+  angle: z.number().min(LAUNCH_LIMITS.angle.min).max(LAUNCH_LIMITS.angle.max),
+});
+
 const messageSchema = z.discriminatedUnion("role", [
   z.strictObject({
     role: z.literal("user"),
@@ -37,29 +43,37 @@ const messageSchema = z.discriminatedUnion("role", [
   }),
 ]);
 
-export const tutorRequestSchema = z
-  .strictObject({
-    messages: z
-      .array(messageSchema)
-      .min(1)
-      .max(TUTOR_LIMITS.messages)
-      .refine((messages) => messages.at(-1)?.role === "user", {
-        error: "El último mensaje debe ser de la persona",
-      }),
-    scene: sceneSchema,
-    stepId: z.enum(["attraction", "mass", "distance"]),
-    /** Opción elegida en la predicción del paso, o null si sigue pendiente. */
-    answerId: z.string().max(40).nullable(),
-  })
-  .refine(
-    ({ stepId, answerId }) =>
-      answerId === null ||
-      STEPS.some(
-        ({ id, options }) =>
-          id === stepId && options.some((option) => option.id === answerId),
-      ),
-    { error: "La opción no pertenece a este paso" },
-  );
+const answerSchema = z.string().max(40).nullable();
+
+export const tutorRequestSchema = z.strictObject({
+  messages: z
+    .array(messageSchema)
+    .min(1)
+    .max(TUTOR_LIMITS.messages)
+    .refine((messages) => messages.at(-1)?.role === "user", {
+      error: "El último mensaje debe ser de la persona",
+    }),
+  scene: sceneSchema,
+  launch: launchSchema,
+  stepId: z.enum(["attraction", "mass", "distance", "orbit"]),
+  /** Solo identificadores: el servidor deriva el perfil, no lo recibe hecho. */
+  answers: z
+    .strictObject({
+      attraction: answerSchema,
+      mass: answerSchema,
+      distance: answerSchema,
+      orbit: answerSchema,
+    })
+    .refine(
+      (answers) =>
+        STEPS.every(
+          ({ id, options }) =>
+            answers[id] === null ||
+            options.some((option) => option.id === answers[id]),
+        ),
+      { error: "Una respuesta no pertenece a su paso" },
+    ),
+});
 
 export type TutorRequest = z.infer<typeof tutorRequestSchema>;
 
