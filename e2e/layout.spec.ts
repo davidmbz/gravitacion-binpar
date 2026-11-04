@@ -49,6 +49,38 @@ for (const size of SCREENS) {
       }
     });
 
+    test("el detalle no hace scroll y mantiene los controles", async ({
+      page,
+    }) => {
+      for (const slug of ["butterfly-i", "yin-yang-i", "lagrange"]) {
+        await page.goto(`/orbitas/${slug}`);
+        await expectNoPageScroll(page);
+        await expect(
+          page.getByRole("slider", { name: "Momento del periodo" }),
+        ).toBeInViewport({ ratio: 1 });
+        await expect(
+          page.getByRole("button", { name: "Perturbar", exact: true }),
+        ).toBeInViewport({ ratio: 1 });
+      }
+    });
+
+    test("el detalle sigue sin scroll al perturbar y al ver los límites", async ({
+      page,
+    }) => {
+      await page.goto("/orbitas/goggles");
+      await page.getByRole("tab", { name: "Límites de la animación" }).click();
+      await expect(
+        page.getByRole("heading", { name: "Lo que esta animación no es" }),
+      ).toBeVisible();
+      await expectNoPageScroll(page);
+
+      await page
+        .getByRole("button", { name: "Perturbar", exact: true })
+        .click();
+      await expect(page.getByRole("status")).toContainText("100 veces mayor");
+      await expectNoPageScroll(page);
+    });
+
     test("filtrar la galería no estira las láminas", async ({ page }) => {
       await page.goto("/orbitas");
       await expect(page.getByRole("status")).toHaveText("6 de 6 órbitas");
@@ -78,6 +110,23 @@ for (const size of SCREENS) {
     });
   });
 }
+
+test("en móvil, la órbita y sus controles quedan a la vista", async ({
+  page,
+}) => {
+  await page.setViewportSize({ width: 375, height: 667 });
+  await page.goto("/orbitas/butterfly-i");
+  await expect(
+    page.getByRole("img", { name: /Trayectoria de los tres/ }),
+  ).toBeInViewport({ ratio: 1 });
+  for (const button of ["Pausar", "Reiniciar", "Perturbar"]) {
+    const target = page.getByRole("button", { name: button, exact: true });
+    await expect(target).toBeInViewport({ ratio: 1 });
+    const box = await target.boundingBox();
+    expect(box?.height).toBeGreaterThanOrEqual(44);
+  }
+  await expectNoPageScroll(page);
+});
 
 test("el filtro de la galería muestra el foco de teclado", async ({ page }) => {
   await page.goto("/orbitas");

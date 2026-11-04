@@ -53,7 +53,7 @@ export function TabList<Id extends string>({
   }
 
   return (
-    <div role="tablist" aria-label={label} className="flex gap-1">
+    <div role="tablist" aria-label={label} className="flex flex-wrap">
       {tabs.map((tab, index) => {
         const isActive = tab.id === active;
         return (
@@ -71,7 +71,7 @@ export function TabList<Id extends string>({
             tabIndex={isActive ? 0 : -1}
             onClick={() => onChange(tab.id)}
             onKeyDown={(event) => handleKeyDown(event, index)}
-            className={`min-h-11 cursor-pointer border-b-2 px-3 transition-colors duration-150 ${
+            className={`min-h-11 cursor-pointer border-b-2 px-2.5 transition-colors duration-150 ${
               isActive
                 ? "border-cinnabar text-ink"
                 : "border-transparent text-ink-soft hover:text-ink"

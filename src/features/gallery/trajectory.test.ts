@@ -2,12 +2,7 @@ import { describe, expect, it } from "vitest";
 import { ORBITS } from "@/lib/physics/orbits";
 import { sampleOrbit } from "@/lib/physics/sampling";
 import { STATE_SIZE } from "@/lib/physics/three-body";
-import {
-  buildTrajectory,
-  frameOf,
-  stageAspectRatio,
-  unionFrames,
-} from "./trajectory";
+import { buildTrajectory, frameOf, unionFrames } from "./trajectory";
 
 describe("buildTrajectory", () => {
   const samples = sampleOrbit(ORBITS[2], 1024);
@@ -41,12 +36,6 @@ describe("buildTrajectory", () => {
       { x: 0, y: -3, width: 4, height: 1 },
     );
     expect(union).toEqual({ x: -1, y: -3, width: 5, height: 4 });
-  });
-
-  it("limita la proporción del lienzo", () => {
-    const frame = { x: 0, y: 0, width: 10, height: 1 };
-    expect(stageAspectRatio(frame)).toBe(2);
-    expect(stageAspectRatio({ ...frame, width: 1, height: 3 })).toBe(1);
   });
 
   it("reduce puntos al aumentar la separación mínima", () => {

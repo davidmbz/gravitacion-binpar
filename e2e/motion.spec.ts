@@ -108,18 +108,6 @@ test.describe("con prefers-reduced-motion", () => {
   });
 });
 
-test("los controles del detalle caben en pantalla en escritorio", async ({
-  page,
-}) => {
-  await page.setViewportSize({ width: 1440, height: 900 });
-  for (const slug of ["butterfly-i", "yin-yang-i", "lagrange"]) {
-    await page.goto(`/orbitas/${slug}`);
-    await expect(
-      page.getByRole("slider", { name: "Momento del periodo" }),
-    ).toBeInViewport({ ratio: 1 });
-  }
-});
-
 test.describe("perturbar una órbita", () => {
   test("Lagrange se separa y se puede volver a la órbita original", async ({
     page,
@@ -145,6 +133,24 @@ test.describe("perturbar una órbita", () => {
     expect(await figure.getAttribute("viewBox")).toBe(originalBox);
   });
 
+  test("abre su pestaña con el resultado y la retira al quitarla", async ({
+    page,
+  }) => {
+    await page.goto("/orbitas/lagrange");
+    const tab = page.getByRole("tab", { name: "Perturbación" });
+    await expect(tab).toHaveCount(0);
+
+    await page.getByRole("button", { name: "Perturbar", exact: true }).click();
+    await expect(tab).toHaveAttribute("aria-selected", "true");
+
+    await page.getByRole("button", { name: "Sin perturbar" }).click();
+    await expect(tab).toHaveCount(0);
+    await expect(page.getByRole("tab", { name: "Órbita" })).toHaveAttribute(
+      "aria-selected",
+      "true",
+    );
+  });
+
   test("Moth I no exagera un resultado que no se ve", async ({ page }) => {
     await page.goto("/orbitas/moth-i");
     await page.getByRole("button", { name: "Perturbar", exact: true }).click();
@@ -166,16 +172,5 @@ test.describe("perturbar una órbita", () => {
     await page.getByRole("button", { name: "Reproducir" }).click();
     await expect(page.getByRole("button", { name: "Pausar" })).toBeVisible();
     await expect.poll(() => slider.inputValue()).not.toBe("1000");
-  });
-
-  test("los controles caben en escritorio durante la comparación", async ({
-    page,
-  }) => {
-    await page.setViewportSize({ width: 1440, height: 900 });
-    await page.goto("/orbitas/yin-yang-i");
-    await page.getByRole("button", { name: "Perturbar", exact: true }).click();
-    await expect(
-      page.getByRole("slider", { name: "Momento de la simulación" }),
-    ).toBeInViewport({ ratio: 1 });
   });
 });

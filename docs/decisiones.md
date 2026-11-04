@@ -124,3 +124,10 @@ Una entrada por decisión relevante. Este registro alimenta el README y la prepa
 * Alternativas descartadas: destacar una órbita a mano, que no tiene una razón defendible. Usar `grid-auto-flow: dense` para evitar huecos en móvil, que separa el orden visual del de teclado.
 * Decisión: la lámina es ancha si su encuadre real lo es. El orden elegido llena cuatro y dos columnas sin huecos, y un test lo comprueba con las órbitas reales. En las curvas compartidas se dibuja el tercio que recorre cada cuerpo, y así aparecen los tres colores.
 * Coste: el orden ya no es el del catálogo. Al filtrar en móvil puede quedar un hueco, porque el orden solo está pensado para las seis.
+
+### Pantalla de detalle
+
+* Contexto: la órbita competía con datos y explicación, y los límites de la animación quedaban en medio del texto.
+* Alternativas descartadas: dejar la descripción en el cliente, que la sacaría del HTML del servidor. Abrir el resultado de Perturbar en un diálogo, que taparía justo lo que hay que mirar.
+* Decisión: el reproductor es el contenedor de la pantalla y recibe del servidor la figura y el contenido de las pestañas como props. Los controles van en una barra sobre la órbita. Órbita y Límites de la animación son pestañas visibles desde el principio, y Perturbación aparece al usarla.
+* Coste: el reproductor conoce la distribución de la pantalla además de la reproducción, y crece como componente. El encuadre sigue cambiando con `setAttribute` sobre el SVG.

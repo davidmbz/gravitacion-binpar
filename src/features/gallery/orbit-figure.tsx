@@ -10,7 +10,7 @@ interface OrbitFigureProps {
 /** La portada va en tinta; las láminas y el detalle, con el color de cada cuerpo. */
 const TONES = {
   ink: { colored: false, opacity: 1, width: 1 },
-  pigment: { colored: true, opacity: 0.55, width: 1.25 },
+  pigment: { colored: true, opacity: 0.75, width: 1.75 },
   vivid: { colored: true, opacity: 0.9, width: 1.5 },
 };
 

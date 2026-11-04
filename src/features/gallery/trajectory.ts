@@ -22,9 +22,6 @@ export interface Trajectory {
 /** Margen alrededor de la órbita, para que los cuerpos no toquen el borde. */
 const MARGIN_RATIO = 0.06;
 
-/** Más ancha que esto, la figura dejaría unos controles demasiado cerca. */
-const MAX_ASPECT_RATIO = 2;
-
 /** Encuadre ajustado a la órbita: no todas ocupan un cuadrado. */
 export function frameOf({ states, intervals }: OrbitSamples): Frame {
   let minX = Infinity;
@@ -62,11 +59,6 @@ export function unionFrames(...frames: Frame[]): Frame {
   const right = Math.max(...frames.map(({ x, width }) => x + width));
   const bottom = Math.max(...frames.map(({ y, height }) => y + height));
   return { x: left, y: top, width: right - left, height: bottom - top };
-}
-
-/** Proporción del lienzo: sigue a la órbita, sin llegar a una tira estrecha. */
-export function stageAspectRatio({ width, height }: Frame): number {
-  return Math.min(Math.max(width / height, 1), MAX_ASPECT_RATIO);
 }
 
 /**

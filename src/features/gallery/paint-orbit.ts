@@ -82,7 +82,7 @@ export function paintOrbit(
 
   for (let body = 0; body < BODY_COUNT; body++) {
     context.strokeStyle = BODY_COLORS[body];
-    context.lineWidth = 2.5 * ratio;
+    context.lineWidth = 3.5 * ratio;
     for (let i = 1; i < trail.length; i++) {
       context.globalAlpha = i / trail.length;
       context.beginPath();
