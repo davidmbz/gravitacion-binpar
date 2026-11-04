@@ -1,4 +1,5 @@
 import { INITIAL_SCENE, type Scene } from "./scene";
+import type { Answers } from "./learner-profile";
 import { STEPS, type StepId } from "./steps";
 
 export type PredictionState =
@@ -25,6 +26,17 @@ export const INITIAL_LEARN_STATE: LearnState = {
     distance: { status: "pending" },
   },
 };
+
+/** Identificadores de las respuestas: lo único que necesita saber el servidor. */
+export function answersOf({ predictions }: LearnState): Answers {
+  const answer = (prediction: PredictionState) =>
+    prediction.status === "answered" ? prediction.optionId : null;
+  return {
+    attraction: answer(predictions.attraction),
+    mass: answer(predictions.mass),
+    distance: answer(predictions.distance),
+  };
+}
 
 export function currentPrediction(state: LearnState): PredictionState {
   return state.predictions[STEPS[state.stepIndex].id];

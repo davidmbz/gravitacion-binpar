@@ -1,14 +1,43 @@
 export type StepId = "attraction" | "mass" | "distance";
 
+export type MisconceptionId =
+  | "larger-mass-pulls-harder"
+  | "larger-mass-receives-more"
+  | "force-ignores-a-mass"
+  | "doubled-both-masses"
+  | "force-on-one-body"
+  | "force-falls-linearly"
+  | "force-ignores-distance"
+  | "gravity-vanishes-far-away";
+
+/** Error de razonamiento que revela cada opción incorrecta. */
+export const MISCONCEPTIONS: Record<MisconceptionId, string> = {
+  "larger-mass-pulls-harder": "Creer que el cuerpo de más masa tira más fuerte",
+  "larger-mass-receives-more":
+    "Creer que el cuerpo de más masa recibe más fuerza",
+  "force-ignores-a-mass": "Creer que la fuerza depende de una sola masa",
+  "doubled-both-masses": "Confundir duplicar una masa con duplicar las dos",
+  "force-on-one-body": "Creer que la fuerza cambia solo en un cuerpo",
+  "force-falls-linearly":
+    "Creer que la fuerza baja en proporción directa a la distancia",
+  "force-ignores-distance": "Creer que la distancia no afecta a la fuerza",
+  "gravity-vanishes-far-away":
+    "Creer que la gravedad desaparece a gran distancia",
+};
+
 export type PredictionOption = {
   id: string;
   label: string;
   explanation: string;
+  /** Solo en las opciones incorrectas. */
+  misconception?: MisconceptionId;
 };
 
 export type Step = {
   id: StepId;
   title: string;
+  /** Lo que queda demostrado al acertar. Solo se muestra tras responder. */
+  concept: string;
   intro: string;
   question: string;
   options: readonly PredictionOption[];
@@ -24,18 +53,21 @@ export const STEPS: readonly Step[] = [
   {
     id: "attraction",
     title: "Atracción mutua",
+    concept: "Las dos fuerzas son iguales y opuestas",
     intro:
       "Dos cuerpos cualesquiera se atraen. En la mesa, A tiene el doble de masa que B.",
     question: "¿Cómo crees que son las fuerzas que actúan sobre cada cuerpo?",
     options: [
       {
         id: "stronger-on-b",
+        misconception: "larger-mass-pulls-harder",
         label: "A atrae a B con más fuerza que B a A, porque tiene más masa",
         explanation:
           "Es la intuición más habitual: más masa, más fuerza. La masa de A sí aumenta la atracción, pero la aumenta para los dos cuerpos por igual.",
       },
       {
         id: "stronger-on-a",
+        misconception: "larger-mass-receives-more",
         label: "La fuerza sobre A es mayor, porque hay más masa que atraer",
         explanation:
           "A tiene más masa, pero eso no hace que reciba más fuerza que B. La atracción es cosa de la pareja y llega con la misma intensidad a los dos.",
@@ -66,6 +98,7 @@ export const STEPS: readonly Step[] = [
   {
     id: "mass",
     title: "Masa",
+    concept: "La fuerza es proporcional a cada masa",
     intro:
       "La mesa vuelve a la escena inicial: A con masa 4 y B con masa 2. Esa fuerza de partida es nuestra referencia, ×1.",
     question:
@@ -73,6 +106,7 @@ export const STEPS: readonly Step[] = [
     options: [
       {
         id: "unchanged",
+        misconception: "force-ignores-a-mass",
         label: "No cambia, porque B sigue igual",
         explanation:
           "B sigue igual, pero la fuerza depende de las dos masas a la vez. Si cambia cualquiera de ellas, cambia la fuerza.",
@@ -85,12 +119,14 @@ export const STEPS: readonly Step[] = [
       },
       {
         id: "quadruples",
+        misconception: "doubled-both-masses",
         label: "Se multiplica por cuatro: ×4",
         explanation:
           "Eso ocurre si duplicas las dos masas: ×2 por A y otro ×2 por B. Aquí solo cambia una, así que la fuerza se multiplica una sola vez.",
       },
       {
         id: "only-on-b",
+        misconception: "force-on-one-body",
         label: "Solo crece la fuerza sobre B",
         explanation:
           "Las dos flechas siguen midiendo lo mismo, como en el paso anterior. Si la atracción crece, crece para los dos cuerpos.",
@@ -115,6 +151,7 @@ export const STEPS: readonly Step[] = [
   {
     id: "distance",
     title: "Distancia",
+    concept: "A doble distancia, un cuarto de la fuerza",
     intro:
       "La mesa vuelve a la escena inicial, con los cuerpos a distancia 4. Ahora toca separarlos.",
     question:
@@ -122,6 +159,7 @@ export const STEPS: readonly Step[] = [
     options: [
       {
         id: "half",
+        misconception: "force-falls-linearly",
         label: "Se queda en la mitad: ×½",
         explanation:
           "Es la respuesta más natural: doble de distancia, mitad de fuerza. Pero la fuerza baja más deprisa: se queda en la mitad de la mitad.",
@@ -133,12 +171,14 @@ export const STEPS: readonly Step[] = [
       },
       {
         id: "unchanged",
+        misconception: "force-ignores-distance",
         label: "No cambia, porque las masas son las mismas",
         explanation:
           "Las masas son las mismas, pero la distancia también cuenta. Al separar los cuerpos, la fuerza se debilita.",
       },
       {
         id: "vanishes",
+        misconception: "gravity-vanishes-far-away",
         label: "Desaparece, porque están demasiado lejos",
         explanation:
           "Se debilita, pero no llega a cero. Por muy lejos que estén dos cuerpos, siempre queda algo de atracción.",

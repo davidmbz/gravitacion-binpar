@@ -37,29 +37,35 @@ const messageSchema = z.discriminatedUnion("role", [
   }),
 ]);
 
-export const tutorRequestSchema = z
-  .strictObject({
-    messages: z
-      .array(messageSchema)
-      .min(1)
-      .max(TUTOR_LIMITS.messages)
-      .refine((messages) => messages.at(-1)?.role === "user", {
-        error: "El último mensaje debe ser de la persona",
-      }),
-    scene: sceneSchema,
-    stepId: z.enum(["attraction", "mass", "distance"]),
-    /** Opción elegida en la predicción del paso, o null si sigue pendiente. */
-    answerId: z.string().max(40).nullable(),
-  })
-  .refine(
-    ({ stepId, answerId }) =>
-      answerId === null ||
-      STEPS.some(
-        ({ id, options }) =>
-          id === stepId && options.some((option) => option.id === answerId),
-      ),
-    { error: "La opción no pertenece a este paso" },
-  );
+const answerSchema = z.string().max(40).nullable();
+
+export const tutorRequestSchema = z.strictObject({
+  messages: z
+    .array(messageSchema)
+    .min(1)
+    .max(TUTOR_LIMITS.messages)
+    .refine((messages) => messages.at(-1)?.role === "user", {
+      error: "El último mensaje debe ser de la persona",
+    }),
+  scene: sceneSchema,
+  stepId: z.enum(["attraction", "mass", "distance"]),
+  /** Solo identificadores: el servidor deriva el perfil, no lo recibe hecho. */
+  answers: z
+    .strictObject({
+      attraction: answerSchema,
+      mass: answerSchema,
+      distance: answerSchema,
+    })
+    .refine(
+      (answers) =>
+        STEPS.every(
+          ({ id, options }) =>
+            answers[id] === null ||
+            options.some((option) => option.id === answers[id]),
+        ),
+      { error: "Una respuesta no pertenece a su paso" },
+    ),
+});
 
 export type TutorRequest = z.infer<typeof tutorRequestSchema>;
 

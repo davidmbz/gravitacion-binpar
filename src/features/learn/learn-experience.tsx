@@ -5,12 +5,15 @@ import { useEffect, useReducer, useRef, useState } from "react";
 import { flushSync } from "react-dom";
 import { Formula } from "./formula";
 import {
+  answersOf,
   areForcesVisible,
   currentPrediction,
   INITIAL_LEARN_STATE,
   learnReducer,
   type LearnAction,
 } from "./learn-reducer";
+import { deriveProfile, suggestionsFor } from "./learner-profile";
+import { LearnerSummary } from "./learner-summary";
 import { Prediction } from "./prediction";
 import {
   describeScene,
@@ -54,6 +57,7 @@ export function LearnExperience() {
   const forcesVisible = areForcesVisible(state);
   const isLastStep = state.stepIndex === STEPS.length - 1;
   const multiple = formatMultiple(relativeForce(state.scene));
+  const answers = answersOf(state);
 
   function moveToStep(action: LearnAction) {
     // flushSync: el foco debe llegar al título cuando ya muestra el paso nuevo.
@@ -142,14 +146,12 @@ export function LearnExperience() {
 
         <Formula predictions={state.predictions} currentStepId={step.id} />
 
+        <LearnerSummary profile={deriveProfile(answers)} />
+
         <TutorPanel
           stepId={step.id}
-          suggestions={
-            isPending ? step.tutorPrompts.pending : step.tutorPrompts.answered
-          }
-          answerId={
-            prediction.status === "answered" ? prediction.optionId : null
-          }
+          suggestions={suggestionsFor(step, answers[step.id])}
+          answers={answers}
           scene={state.scene}
           onSceneChange={(scene) => dispatch({ type: "setScene", scene })}
         />

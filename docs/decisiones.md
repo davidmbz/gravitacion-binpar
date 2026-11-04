@@ -75,3 +75,10 @@ Una entrada por decisión relevante. Este registro alimenta el README y la prepa
 * Alternativas descartadas: mover un solo cuerpo, que desplaza el centro de masas y hace que todo derive. Desplazar los cuerpos 1 y 2 en x, que cambia la energía unas mil veces más en la familia de Šuvakov, y la separación sería sobre todo desfase. Una perturbación de 0,01, con la que Yin-Yang I llega a un choque y el integrador se detiene. Comparar con el bucle del periodo, que mezclaría la perturbación con el error de las condiciones publicadas.
 * Decisión: desplazar los cuerpos 1 y 3 una milésima en y, en sentidos opuestos, lo que conserva centro de masas y momento. Se integran original y perturbada con DOPRI5 durante 30 unidades, y se reproducen una vez. Tamaño y duración son fijos, así que un test garantiza que las seis órbitas terminan.
 * Coste: una sola dirección y un tiempo limitado, y el texto lo dice. El cálculo bloquea el hilo principal de 53 a 181 ms en un Mac, y hasta 1,3 s con la CPU ralentizada 6×, sin medir en un móvil real. El SVG del servidor cambia de encuadre con `setAttribute`, porque su trazado no llega al cliente como dato.
+
+### Perfil del alumno derivado de las predicciones
+
+* Contexto: el tutor debe adaptarse a lo que la persona demuestra, sin depender del juicio del modelo y sin que el cliente pueda dictarle el perfil.
+* Alternativas descartadas: que el modelo mantenga el perfil con una herramienta, que lo haría variable y costaría llamadas. Guardarlo en un estado propio, que podría desincronizarse. Enviar el perfil ya calculado, que permitiría inyectar texto en el prompt.
+* Decisión: `deriveProfile` es una función pura de las respuestas. El cliente la usa para mostrar "Lo que has demostrado". Al servidor solo llegan identificadores validados con Zod, y él recalcula el perfil. Cada opción incorrecta nombra su error, y tras un fallo la primera pregunta sugerida apunta a esa respuesta.
+* Coste: es una señal débil, una pregunta por concepto y sin reintento, y la interfaz lo dice. El perfil no sobrevive a una recarga. La adaptación del tutor depende de que el modelo siga el prompt, aunque el perfil en sí es determinista.

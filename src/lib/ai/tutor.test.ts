@@ -8,7 +8,7 @@ const request: TutorRequest = {
   messages: [{ role: "user", content: "Enséñame la distancia" }],
   scene: INITIAL_SCENE,
   stepId: "distance",
-  answerId: "half",
+  answers: { attraction: "equal-and-opposite", mass: null, distance: "half" },
 };
 
 function text(value: string): Anthropic.TextBlock {
@@ -136,12 +136,28 @@ describe("runTutor", () => {
       stop_reason: "end_turn",
     });
 
-    await runTutor(model, "modelo", { ...request, answerId: null });
+    const answers = { ...request.answers, distance: null };
+    await runTutor(model, "modelo", { ...request, answers });
 
     expect(model.mock.calls[0][0].tools).toEqual([]);
     expect(JSON.stringify(model.mock.calls[0][0].messages)).toContain(
       "Pendiente",
     );
+  });
+
+  it("incluye el perfil derivado en el bloque de estado", async () => {
+    const model = fakeModel({
+      content: [text("Respuesta")],
+      stop_reason: "end_turn",
+    });
+
+    await runTutor(model, "modelo", request);
+
+    const sent = JSON.stringify(model.mock.calls[0][0].messages);
+    expect(sent).toContain("Demostrado: Atracción mutua.");
+    expect(sent).toContain("Por reforzar: Distancia.");
+    expect(sent).toContain("proporción directa a la distancia");
+    expect(sent).toContain("Sin responder: Masa.");
   });
 
   it("separa el texto de la persona del bloque de estado", async () => {

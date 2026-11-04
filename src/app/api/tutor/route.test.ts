@@ -7,7 +7,7 @@ const validBody = JSON.stringify({
   messages: [{ role: "user", content: "Hola" }],
   scene: INITIAL_SCENE,
   stepId: "mass",
-  answerId: null,
+  answers: { attraction: null, mass: null, distance: null },
 });
 
 function post(body: string, ip: string): Request {

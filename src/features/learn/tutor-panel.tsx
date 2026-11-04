@@ -2,6 +2,7 @@
 
 import { useReducer, useState, type FormEvent } from "react";
 import { TUTOR_LIMITS } from "@/lib/ai/schemas";
+import type { Answers } from "./learner-profile";
 import type { Scene } from "./scene";
 import type { StepId } from "./steps";
 import {
@@ -15,7 +16,7 @@ type TutorPanelProps = {
   stepId: StepId;
   /** Preguntas de un toque, según el momento del paso. */
   suggestions: readonly string[];
-  answerId: string | null;
+  answers: Answers;
   scene: Scene;
   onSceneChange: (scene: Scene) => void;
 };
@@ -23,7 +24,7 @@ type TutorPanelProps = {
 export function TutorPanel({
   stepId,
   suggestions,
-  answerId,
+  answers,
   scene,
   onSceneChange,
 }: TutorPanelProps) {
@@ -41,7 +42,7 @@ export function TutorPanel({
       messages: [...chat.messages, { role: "user", content }],
       scene,
       stepId,
-      answerId,
+      answers,
     });
 
     if (response.status === "error") {

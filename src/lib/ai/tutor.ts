@@ -37,7 +37,8 @@ export async function runTutor(
   const messages = toModelMessages(request);
   // Con la predicción pendiente no se ofrece la herramienta: mover la mesa
   // revelaría el resultado antes de que la persona responda.
-  const tools = request.answerId === null ? [] : [CONFIGURE_SCENE_TOOL];
+  const tools =
+    request.answers[request.stepId] === null ? [] : [CONFIGURE_SCENE_TOOL];
 
   const baseParams = {
     model,

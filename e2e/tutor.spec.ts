@@ -75,3 +75,40 @@ test("una pregunta sugerida se envía con un toque", async ({ page }) => {
     "Porque el efecto depende de la masa.",
   );
 });
+
+test("el perfil refleja la respuesta y viaja al tutor como identificadores", async ({
+  page,
+}) => {
+  let sentBody: unknown = null;
+  await page.route("/api/tutor", (route) => {
+    sentBody = route.request().postDataJSON();
+    return route.fulfill({
+      json: { status: "ok", reply: "Vamos a verlo.", scene: null },
+    });
+  });
+
+  await page.goto("/aprende");
+  await expect(
+    page.getByRole("heading", { name: "Lo que has demostrado" }),
+  ).toBeHidden();
+
+  await page.getByRole("radio", { name: /A atrae a B con más fuerza/ }).check();
+  await page.getByRole("button", { name: "Comprobar mi predicción" }).click();
+
+  await expect(
+    page.getByRole("heading", { name: "Lo que has demostrado" }),
+  ).toBeVisible();
+  await expect(page.getByText("Por reforzar")).toBeVisible();
+  await expect(
+    page.getByText("Creer que el cuerpo de más masa tira más fuerte"),
+  ).toBeVisible();
+
+  // Tras fallar, la primera sugerencia apunta a esa respuesta.
+  await page.getByRole("button", { name: /¿Por qué no es correcto/ }).click();
+  await expect(page.getByRole("log")).toContainText("Vamos a verlo.");
+
+  expect(sentBody).toMatchObject({
+    answers: { attraction: "stronger-on-b", mass: null, distance: null },
+  });
+  expect(sentBody).not.toHaveProperty("profile");
+});
