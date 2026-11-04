@@ -1,26 +1,43 @@
 @import "tailwindcss";
 
-:root {
-  --background: #ffffff;
-  --foreground: #171717;
+/* Paleta de lámina grabada. Todos los pares de texto y fondo cumplen AA. */
+@theme {
+  --color-paper: #eef0e8;
+  --color-paper-deep: #e1e5da;
+  --color-ink: #1b2233;
+  --color-ink-soft: #4a5263;
+  --color-rule: #b9bfb2;
+  --color-prussian: #1f4e79;
+  --color-cinnabar: #a92c1c;
+  --color-verdigris: #1f6655;
+
+  --font-serif: var(--font-caslon), Georgia, "Times New Roman", serif;
 }
 
-@theme inline {
-  --color-background: var(--background);
-  --color-foreground: var(--foreground);
-  --font-sans: var(--font-geist-sans);
-  --font-mono: var(--font-geist-mono);
-}
-
-@media (prefers-color-scheme: dark) {
-  :root {
-    --background: #0a0a0a;
-    --foreground: #ededed;
-  }
+html {
+  background: var(--color-paper);
+  color: var(--color-ink);
+  font-family: var(--font-serif);
+  font-variant-numeric: lining-nums;
 }
 
 body {
-  background: var(--background);
-  color: var(--foreground);
-  font-family: Arial, Helvetica, sans-serif;
+  line-height: 1.6;
+}
+
+a {
+  color: var(--color-prussian);
+  text-underline-offset: 0.18em;
+}
+
+/* Foco visible y uniforme en toda la app, también en los controles de simulación. */
+:focus-visible {
+  outline: 3px solid var(--color-prussian);
+  outline-offset: 2px;
+}
+
+@media (prefers-reduced-motion: reduce) {
+  html {
+    scroll-behavior: auto;
+  }
 }
