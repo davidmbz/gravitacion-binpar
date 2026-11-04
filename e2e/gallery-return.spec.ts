@@ -73,7 +73,8 @@ test("una órbita desconocida muestra la página de no encontrado", async ({
   await expect(
     page.getByRole("heading", { level: 1, name: "Esta página no existe" }),
   ).toBeVisible();
-  await expect(page.locator('meta[name="robots"]')).toHaveAttribute(
+  // Next puede inyectar la etiqueta dos veces mientras transmite la respuesta.
+  await expect(page.locator('meta[name="robots"]').first()).toHaveAttribute(
     "content",
     "noindex",
   );
