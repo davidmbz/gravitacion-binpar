@@ -44,8 +44,8 @@ Una entrada por decisión relevante. Este registro alimenta el README y la prepa
 ### Experiencia de Aprende
 
 * Contexto: el público no sabe física, y leer una fórmula no la enseña. La predicción obliga a comprometerse antes de ver el resultado.
-* Alternativas descartadas: misiones de lanzar una luna, que enseñan órbitas más que la ley. Editar el exponente de la ley, que exige una base previa.
-* Decisión: tres pasos con predicción corregida por la app. Mientras la predicción está pendiente, los controles se bloquean y, en el primer paso, se ocultan las flechas. Cada paso vuelve a la escena inicial (masas 4 y 2, distancia 4), para que ×1 signifique siempre lo mismo.
+* Alternativas descartadas: construir toda la experiencia como misiones de lanzar una luna, que enseñan órbitas más que la ley; se añadió después como último paso. Editar el exponente de la ley, que exige una base previa.
+* Decisión: pasos con predicción corregida por la app, tres sobre la ley y uno sobre las órbitas. Mientras la predicción está pendiente, los controles se bloquean y, en el primer paso, se ocultan las flechas. Cada paso vuelve a la escena inicial (masas 4 y 2, distancia 4), para que ×1 signifique siempre lo mismo.
 * Coste: no se puede avanzar sin responder ni cambiar la respuesta, y al cambiar de paso se pierde lo movido en la mesa. Las flechas son lineales con la fuerza, así que los extremos se recortan: arriba se marca que no cabe a escala y abajo hay un mínimo de 5 px. El número siempre es el real.
 
 ### Tutor en servidor, sin streaming
@@ -89,3 +89,17 @@ Una entrada por decisión relevante. Este registro alimenta el README y la prepa
 * Alternativas descartadas: Verlet en vivo, que añadiría un segundo integrador y un bucle físico. Clasificar mirando el tramo integrado, que no vería un choque posterior al tiempo calculado. Una herramienta para que el modelo lance, que añade superficie sin requisito.
 * Decisión: planeta fijo y luna de masa despreciable, porque la solución exacta es conocida. Energía y momento angular clasifican el resultado. DOPRI5 calcula 30 unidades de tiempo y se reproduce el tramo hasta que la luna toca el planeta o sale de la mesa. Un test compara los dos caminos en los 169 lanzamientos posibles. El ángulo se limita a ±60° para que el momento angular nunca sea nulo.
 * Coste: es un modelo de dos cuerpos con planeta fijo, no una simulación completa. Una órbita muy abierta se corta al salir de la mesa, y un choque posterior al tramo se anuncia sin verse. El paso no ofrece `configurar_escena`: el tutor solo puede proponer valores.
+
+### Integración continua
+
+* Contexto: el repositorio es público y la historia se revisa. Las comprobaciones no deben depender de que alguien las lance en local.
+* Alternativas descartadas: incluir los e2e, que tardan más y exigen instalar navegadores. Fijar las acciones por SHA, más seguro frente a una etiqueta movida pero menos legible para este proyecto.
+* Decisión: GitHub Actions ejecuta lint, typecheck, tests y build en cada pull request y en `main`, con permisos de solo lectura. La versión de pnpm sale de `packageManager`.
+* Coste: los flujos de usuario siguen comprobándose solo en local. Las acciones se fijan por versión mayor, así que una actualización podría cambiar su comportamiento.
+
+### Imágenes Open Graph por órbita
+
+* Contexto: cada órbita tiene una URL propia y compartible. La trayectoria es lo que mejor la identifica.
+* Alternativas descartadas: imágenes estáticas en el repositorio, que quedarían desfasadas si cambia el dibujo. Fijar `metadataBase`, innecesario porque en Vercel Next toma el dominio de producción.
+* Decisión: `opengraph-image.tsx` con `ImageResponse`, generada en build con el mismo trazado que la galería.
+* Coste: usa la fuente por defecto, porque `ImageResponse` no admite woff2 y Caslon exigiría añadir un TTF al repositorio. El renderizador ignora la proporción del `viewBox`, así que el SVG debe calcular la suya. Ningún test automático detecta una imagen deformada.

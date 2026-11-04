@@ -38,3 +38,20 @@ test.describe("Aprende en móvil", () => {
     });
   });
 });
+
+test("cada órbita publica su imagen para compartir", async ({
+  page,
+  request,
+}) => {
+  await page.goto("/orbitas/butterfly-i");
+  const url = await page
+    .locator('meta[property="og:image"]')
+    .getAttribute("content");
+  expect(url).toContain("/orbitas/butterfly-i/opengraph-image");
+
+  // La URL es absoluta y su dominio depende del entorno: se comprueba la ruta.
+  const { pathname, search } = new URL(url ?? "");
+  const response = await request.get(`${pathname}${search}`);
+  expect(response.status()).toBe(200);
+  expect(response.headers()["content-type"]).toBe("image/png");
+});
