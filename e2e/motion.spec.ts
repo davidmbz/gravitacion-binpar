@@ -78,6 +78,24 @@ test.describe("con prefers-reduced-motion", () => {
     await expect(page.getByRole("button", { name: "Pausar" })).toBeVisible();
   });
 
+  test("la comparación queda en pausa, con barra y lectura al inicio", async ({
+    page,
+  }) => {
+    await page.goto("/orbitas/lagrange");
+    const slider = page.getByRole("slider", { name: "Momento del periodo" });
+    await slider.fill("500");
+
+    await page.getByRole("button", { name: "Perturbar", exact: true }).click();
+
+    await expect(
+      page.getByRole("button", { name: "Reproducir" }),
+    ).toBeVisible();
+    await expect(
+      page.getByRole("slider", { name: "Momento de la simulación" }),
+    ).toHaveValue("0");
+    await expect(page.getByText("Instante 0.")).toBeVisible();
+  });
+
   test("la portada queda quieta, con los cuerpos dibujados", async ({
     page,
   }) => {
@@ -100,4 +118,64 @@ test("los controles del detalle caben en pantalla en escritorio", async ({
       page.getByRole("slider", { name: "Momento del periodo" }),
     ).toBeInViewport({ ratio: 1 });
   }
+});
+
+test.describe("perturbar una órbita", () => {
+  test("Lagrange se separa y se puede volver a la órbita original", async ({
+    page,
+  }) => {
+    await page.goto("/orbitas/lagrange");
+    const figure = page.getByRole("img", { name: /Trayectoria de los tres/ });
+    const originalBox = await figure.getAttribute("viewBox");
+
+    await page.getByRole("button", { name: "Perturbar", exact: true }).click();
+
+    const status = page.getByRole("status");
+    await expect(status).toContainText("100 veces mayor");
+    await expect(
+      page.getByRole("slider", { name: "Momento de la simulación" }),
+    ).toBeVisible();
+    // Los cuerpos se salen del encuadre original: el marco se amplía.
+    expect(await figure.getAttribute("viewBox")).not.toBe(originalBox);
+
+    await page.getByRole("button", { name: "Sin perturbar" }).click();
+    await expect(
+      page.getByRole("slider", { name: "Momento del periodo" }),
+    ).toBeVisible();
+    expect(await figure.getAttribute("viewBox")).toBe(originalBox);
+  });
+
+  test("Moth I no exagera un resultado que no se ve", async ({ page }) => {
+    await page.goto("/orbitas/moth-i");
+    await page.getByRole("button", { name: "Perturbar", exact: true }).click();
+    await expect(page.getByRole("status")).toContainText("no pasó de");
+  });
+
+  test("la barra llega al final, se detiene y se puede repetir", async ({
+    page,
+  }) => {
+    await page.goto("/orbitas/figura-de-ocho");
+    await page.getByRole("button", { name: "Perturbar", exact: true }).click();
+    const slider = page.getByRole("slider", {
+      name: "Momento de la simulación",
+    });
+    await slider.fill("1000");
+    await expect(page.getByRole("button", { name: "Reproducir" })).toBeVisible({
+      timeout: 2000,
+    });
+    await page.getByRole("button", { name: "Reproducir" }).click();
+    await expect(page.getByRole("button", { name: "Pausar" })).toBeVisible();
+    await expect.poll(() => slider.inputValue()).not.toBe("1000");
+  });
+
+  test("los controles caben en escritorio durante la comparación", async ({
+    page,
+  }) => {
+    await page.setViewportSize({ width: 1440, height: 900 });
+    await page.goto("/orbitas/yin-yang-i");
+    await page.getByRole("button", { name: "Perturbar", exact: true }).click();
+    await expect(
+      page.getByRole("slider", { name: "Momento de la simulación" }),
+    ).toBeInViewport({ ratio: 1 });
+  });
 });

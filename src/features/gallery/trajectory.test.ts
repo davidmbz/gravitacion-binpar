@@ -2,7 +2,12 @@ import { describe, expect, it } from "vitest";
 import { ORBITS } from "@/lib/physics/orbits";
 import { sampleOrbit } from "@/lib/physics/sampling";
 import { STATE_SIZE } from "@/lib/physics/three-body";
-import { buildTrajectory, frameOf, stageAspectRatio } from "./trajectory";
+import {
+  buildTrajectory,
+  frameOf,
+  stageAspectRatio,
+  unionFrames,
+} from "./trajectory";
 
 describe("buildTrajectory", () => {
   const samples = sampleOrbit(ORBITS[2], 1024);
@@ -28,6 +33,14 @@ describe("buildTrajectory", () => {
   it("se ajusta a la forma: Butterfly I es más ancha que alta", () => {
     const { width, height } = frameOf(samples);
     expect(width).toBeGreaterThan(height * 2);
+  });
+
+  it("une encuadres sin recortar ninguno", () => {
+    const union = unionFrames(
+      { x: -1, y: -1, width: 2, height: 2 },
+      { x: 0, y: -3, width: 4, height: 1 },
+    );
+    expect(union).toEqual({ x: -1, y: -3, width: 5, height: 4 });
   });
 
   it("limita la proporción del lienzo", () => {

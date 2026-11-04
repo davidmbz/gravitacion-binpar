@@ -11,7 +11,7 @@ import type { Frame } from "@/features/gallery/trajectory";
 import { findOrbit } from "@/lib/physics/orbits";
 import { sampleOrbit, type OrbitSamples } from "@/lib/physics/sampling";
 
-const HERO_STYLE = { bodyRadius: 9, trailDuration: 0.9 };
+const HERO_STYLE = { bodyRadius: 9, trailDuration: 0.9, loops: true };
 
 interface OrbitHeroProps {
   slug: string;
@@ -50,7 +50,7 @@ export function OrbitHero({ slug, frame, children }: OrbitHeroProps) {
       stopLoop = entry.isIntersecting
         ? startLoop((seconds) => {
             phaseRef.current =
-              (phaseRef.current + seconds / samples.period) % 1;
+              (phaseRef.current + seconds / samples.duration) % 1;
             paint();
           })
         : null;

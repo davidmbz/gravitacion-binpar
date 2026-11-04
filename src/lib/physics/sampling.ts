@@ -9,45 +9,54 @@ const TOLERANCE = 1e-13;
 export const PLAYBACK_INTERVALS = 4096;
 
 export interface OrbitSamples {
-  period: number;
+  /** Tiempo simulado que cubren las muestras: un periodo en una órbita cerrada. */
+  duration: number;
   intervals: number;
   /** `intervals + 1` estados completos, separados por un tiempo constante. */
   states: Float64Array;
 }
 
-export function sampleOrbit(
-  orbit: Orbit,
-  intervals: number = PLAYBACK_INTERVALS,
+export function sampleState(
+  initialState: readonly number[],
+  duration: number,
+  intervals: number,
 ): OrbitSamples {
   return {
-    period: orbit.period,
+    duration,
     intervals,
     states: integrateUniform({
       derivative: threeBodyDerivative,
-      initialState: orbit.initialState,
-      duration: orbit.period,
+      initialState,
+      duration,
       intervals,
       tolerance: TOLERANCE,
     }),
   };
 }
 
+export function sampleOrbit(
+  orbit: Orbit,
+  intervals: number = PLAYBACK_INTERVALS,
+): OrbitSamples {
+  return sampleState(orbit.initialState, orbit.period, intervals);
+}
+
 /**
- * Escribe en `out` las posiciones en una fase de 0 a 1 del periodo.
+ * Escribe en `out` las posiciones en una fase de 0 a 1 de la duración.
  *
  * Interpola con Hermite cúbica porque en los encuentros cercanos un cuerpo gira
  * más entre dos muestras de lo que una recta puede seguir. Las velocidades
  * guardadas dan la tangente en cada extremo.
  */
 export function positionsAt(
-  { period, intervals, states }: OrbitSamples,
+  { duration, intervals, states }: OrbitSamples,
   phase: number,
   out: Float64Array,
 ): void {
   const scaled = (phase - Math.floor(phase)) * intervals;
   const index = Math.min(Math.floor(scaled), intervals - 1);
   const u = scaled - index;
-  const dt = period / intervals;
+  const dt = duration / intervals;
 
   const start = index * STATE_SIZE;
   const end = start + STATE_SIZE;

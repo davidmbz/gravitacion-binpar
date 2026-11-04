@@ -68,3 +68,10 @@ Una entrada por decisión relevante. Este registro alimenta el README y la prepa
 * Alternativas descartadas: ajustar el lienzo exactamente a la órbita, que dejaría una tira de poca altura.
 * Decisión: el encuadre sale de los límites reales de la órbita. La proporción del lienzo se limita entre 1 y 2, y SVG y canvas usan el mismo encaje centrado.
 * Coste: las órbitas más alargadas dejan aire arriba y abajo.
+
+### Perturbar una órbita
+
+* Contexto: la app dice que estas órbitas son delicadas. Enseñarlo convence más que afirmarlo, pero una animación puede exagerar.
+* Alternativas descartadas: mover un solo cuerpo, que desplaza el centro de masas y hace que todo derive. Desplazar los cuerpos 1 y 2 en x, que cambia la energía unas mil veces más en la familia de Šuvakov, y la separación sería sobre todo desfase. Una perturbación de 0,01, con la que Yin-Yang I llega a un choque y el integrador se detiene. Comparar con el bucle del periodo, que mezclaría la perturbación con el error de las condiciones publicadas.
+* Decisión: desplazar los cuerpos 1 y 3 una milésima en y, en sentidos opuestos, lo que conserva centro de masas y momento. Se integran original y perturbada con DOPRI5 durante 30 unidades, y se reproducen una vez. Tamaño y duración son fijos, así que un test garantiza que las seis órbitas terminan.
+* Coste: una sola dirección y un tiempo limitado, y el texto lo dice. El cálculo bloquea el hilo principal de 53 a 181 ms en un Mac, y hasta 1,3 s con la CPU ralentizada 6×, sin medir en un móvil real. El SVG del servidor cambia de encuadre con `setAttribute`, porque su trazado no llega al cliente como dato.

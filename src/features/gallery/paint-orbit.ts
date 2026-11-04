@@ -12,6 +12,8 @@ export interface PaintStyle {
   bodyRadius: number;
   /** Duración de la estela, en unidades de tiempo de la simulación. */
   trailDuration: number;
+  /** En un tramo que no se repite, la estela no debe saltar al final. */
+  loops: boolean;
 }
 
 export function sizeCanvas(canvas: HTMLCanvasElement): void {
@@ -45,7 +47,9 @@ export function paintOrbit(
   samples: OrbitSamples,
   phase: number,
   frame: Frame,
-  { bodyRadius, trailDuration }: PaintStyle,
+  { bodyRadius, trailDuration, loops }: PaintStyle,
+  /** Trayectoria de referencia: se dibuja en contorno, sin estela. */
+  reference?: OrbitSamples,
 ): void {
   const context = canvas.getContext("2d");
   if (!context) return;
@@ -65,9 +69,9 @@ export function paintOrbit(
   const trail: Float64Array[] = [];
   for (let segment = TRAIL_SEGMENTS; segment >= 0; segment--) {
     const past =
-      phase - ((segment / TRAIL_SEGMENTS) * trailDuration) / samples.period;
+      phase - ((segment / TRAIL_SEGMENTS) * trailDuration) / samples.duration;
     const positions = new Float64Array(POSITION_SIZE);
-    positionsAt(samples, past, positions);
+    positionsAt(samples, loops ? past : Math.max(past, 0), positions);
     trail.push(positions);
   }
 
@@ -87,21 +91,39 @@ export function paintOrbit(
   }
   context.globalAlpha = 1;
 
+  if (reference) {
+    const positions = new Float64Array(POSITION_SIZE);
+    positionsAt(reference, phase, positions);
+    context.lineWidth = 1.5 * ratio;
+    for (let body = 0; body < BODY_COUNT; body++) {
+      context.strokeStyle = BODY_COLORS[body];
+      traceBody(
+        context,
+        body,
+        toX(positions[2 * body]),
+        toY(positions[2 * body + 1]),
+        bodyRadius * ratio,
+      );
+      context.stroke();
+    }
+  }
+
   const current = trail[trail.length - 1];
   for (let body = 0; body < BODY_COUNT; body++) {
     context.fillStyle = BODY_COLORS[body];
-    drawBody(
+    traceBody(
       context,
       body,
       toX(current[2 * body]),
       toY(current[2 * body + 1]),
       bodyRadius * ratio,
     );
+    context.fill();
   }
 }
 
 /** Cada cuerpo tiene su forma: el color nunca es la única señal. */
-function drawBody(
+function traceBody(
   context: CanvasRenderingContext2D,
   body: number,
   x: number,
@@ -123,5 +145,4 @@ function drawBody(
     context.lineTo(x - radius * 1.2, y + radius);
     context.closePath();
   }
-  context.fill();
 }

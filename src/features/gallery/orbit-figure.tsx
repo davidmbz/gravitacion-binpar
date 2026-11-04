@@ -1,5 +1,5 @@
 import { BODY_COLORS } from "./paint-orbit";
-import type { Trajectory } from "./trajectory";
+import { viewBoxOf, type Trajectory } from "./trajectory";
 
 interface OrbitFigureProps {
   trajectory: Trajectory;
@@ -20,7 +20,7 @@ export function OrbitFigure({
     <svg
       role="img"
       aria-label={label}
-      viewBox={`${frame.x} ${frame.y} ${frame.width} ${frame.height}`}
+      viewBox={viewBoxOf(frame)}
       className="block size-full"
     >
       {paths.map((path, body) => (

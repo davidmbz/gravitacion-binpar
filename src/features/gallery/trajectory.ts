@@ -51,6 +51,19 @@ export function frameOf({ states, intervals }: OrbitSamples): Frame {
   };
 }
 
+export function viewBoxOf({ x, y, width, height }: Frame): string {
+  return `${x} ${y} ${width} ${height}`;
+}
+
+/** Menor encuadre que contiene a todos: una órbita perturbada puede salirse. */
+export function unionFrames(...frames: Frame[]): Frame {
+  const left = Math.min(...frames.map(({ x }) => x));
+  const top = Math.min(...frames.map(({ y }) => y));
+  const right = Math.max(...frames.map(({ x, width }) => x + width));
+  const bottom = Math.max(...frames.map(({ y, height }) => y + height));
+  return { x: left, y: top, width: right - left, height: bottom - top };
+}
+
 /** Proporción del lienzo: sigue a la órbita, sin llegar a una tira estrecha. */
 export function stageAspectRatio({ width, height }: Frame): number {
   return Math.min(Math.max(width / height, 1), MAX_ASPECT_RATIO);

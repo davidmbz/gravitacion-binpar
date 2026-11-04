@@ -4,7 +4,7 @@ import { sampleOrbit, type OrbitSamples } from "@/lib/physics/sampling";
 import { paintOrbit, sizeCanvas, startLoop } from "./paint-orbit";
 import type { Frame } from "./trajectory";
 
-const CARD_STYLE = { bodyRadius: 4, trailDuration: 0.5 };
+const CARD_STYLE = { bodyRadius: 4, trailDuration: 0.5, loops: true };
 
 /** La muestra de la tarjeta no necesita tanto detalle como la del reproductor. */
 const CARD_INTERVALS = 1024;
@@ -38,7 +38,7 @@ export function animateCard(
 
   let phase = 0;
   const stop = startLoop((seconds) => {
-    phase = (phase + seconds / samples.period) % 1;
+    phase = (phase + seconds / samples.duration) % 1;
     paintOrbit(canvas, samples, phase, frame, CARD_STYLE);
   });
   active = { canvas, stop };
