@@ -1,9 +1,13 @@
 "use client";
 
 import Link from "next/link";
-import { useEffect, useReducer, useRef, useState } from "react";
+import { useCallback, useEffect, useReducer, useRef, useState } from "react";
 import { flushSync } from "react-dom";
+import { simulateLaunch } from "@/lib/physics/moon-launch";
 import { Formula } from "./formula";
+import { LaunchCanvas, type FlightState } from "./launch-canvas";
+import { LaunchControls } from "./launch-controls";
+import { describeOutcome } from "./launch-text";
 import {
   answersOf,
   areForcesVisible,
@@ -58,10 +62,23 @@ export function LearnExperience() {
   const isLastStep = state.stepIndex === STEPS.length - 1;
   const multiple = formatMultiple(relativeForce(state.scene));
   const answers = answersOf(state);
+  const isLaunchStep = step.id === "orbit";
+  const [flight, setFlight] = useState<FlightState>({ status: "ready" });
+
+  const handleLanded = useCallback(() => {
+    setFlight((current) =>
+      current.status === "flying"
+        ? { status: "landed", flight: current.flight }
+        : current,
+    );
+  }, []);
 
   function moveToStep(action: LearnAction) {
     // flushSync: el foco debe llegar al título cuando ya muestra el paso nuevo.
-    flushSync(() => dispatch(action));
+    flushSync(() => {
+      dispatch(action);
+      setFlight({ status: "ready" });
+    });
     headingRef.current?.focus();
   }
 
@@ -70,31 +87,59 @@ export function LearnExperience() {
       {/* Sticky solo con altura suficiente: en un móvil apaisado taparía la pantalla. */}
       <figure className="top-0 z-10 -mx-4 border-b border-rule bg-paper px-4 py-2 sm:-mx-8 sm:px-8 lg:sticky lg:top-6 lg:mx-0 lg:border-b-0 lg:p-0 [@media(min-height:32rem)]:sticky">
         <div className="border border-rule">
-          <TableCanvas
-            scene={state.scene}
-            forcesVisible={forcesVisible}
-            description={describeScene(state.scene, forcesVisible)}
-          />
-        </div>
-        <figcaption className="mt-2 leading-snug">
-          {forcesVisible ? (
-            <>
-              Fuerza: <span className="text-xl text-cinnabar">{multiple}</span>{" "}
-              respecto a la escena inicial.
-            </>
+          {isLaunchStep ? (
+            <LaunchCanvas
+              launch={state.launch}
+              flight={flight}
+              onLanded={handleLanded}
+            />
           ) : (
-            "Las flechas de fuerza aparecen al responder."
+            <TableCanvas
+              scene={state.scene}
+              forcesVisible={forcesVisible}
+              description={describeScene(state.scene, forcesVisible)}
+            />
           )}
-          <span className="hidden text-sm text-ink-soft italic lg:mt-1 lg:block">
-            Fig. 1. Al inicio: masas {INITIAL_SCENE.massA} y{" "}
-            {INITIAL_SCENE.massB}, distancia {INITIAL_SCENE.distance}.
-          </span>
-        </figcaption>
+        </div>
+        {isLaunchStep ? (
+          <figcaption className="mt-2 leading-snug">
+            {flight.status === "landed"
+              ? describeOutcome(flight.flight.outcome)
+              : flight.status === "flying"
+                ? "En vuelo."
+                : isPending
+                  ? "Responde para poder lanzar."
+                  : "Elige velocidad y ángulo, y lanza."}
+            <span className="hidden text-sm text-ink-soft italic lg:mt-1 lg:block">
+              Fig. 3. La luna parte de lo alto, y se calcula un tramo limitado.
+            </span>
+          </figcaption>
+        ) : (
+          <figcaption className="mt-2 leading-snug">
+            {forcesVisible ? (
+              <>
+                Fuerza:{" "}
+                <span className="text-xl text-cinnabar">{multiple}</span>{" "}
+                respecto a la escena inicial.
+              </>
+            ) : (
+              "Las flechas de fuerza aparecen al responder."
+            )}
+            <span className="hidden text-sm text-ink-soft italic lg:mt-1 lg:block">
+              Fig. 1. Al inicio: masas {INITIAL_SCENE.massA} y{" "}
+              {INITIAL_SCENE.massB}, distancia {INITIAL_SCENE.distance}.
+            </span>
+          </figcaption>
+        )}
         <LiveSummary
           text={
-            forcesVisible
-              ? `Fuerza ${multiple} respecto a la escena inicial.`
-              : ""
+            isLaunchStep
+              ? flight.status === "landed"
+                ? describeOutcome(flight.flight.outcome)
+                : ""
+              : forcesVisible
+                ? `Fuerza ${multiple} respecto a la escena inicial.`
+                : ""
           }
         />
       </figure>
@@ -138,11 +183,29 @@ export function LearnExperience() {
           />
         </section>
 
-        <SceneControls
-          scene={state.scene}
-          disabled={isPending}
-          onChange={(scene) => dispatch({ type: "setScene", scene })}
-        />
+        {isLaunchStep ? (
+          <LaunchControls
+            launch={state.launch}
+            disabled={isPending}
+            isFlying={flight.status === "flying"}
+            onChange={(launch) => {
+              dispatch({ type: "setLaunch", launch });
+              setFlight({ status: "ready" });
+            }}
+            onLaunch={() =>
+              setFlight({
+                status: "flying",
+                flight: simulateLaunch(state.launch),
+              })
+            }
+          />
+        ) : (
+          <SceneControls
+            scene={state.scene}
+            disabled={isPending}
+            onChange={(scene) => dispatch({ type: "setScene", scene })}
+          />
+        )}
 
         <Formula predictions={state.predictions} currentStepId={step.id} />
 
@@ -153,6 +216,7 @@ export function LearnExperience() {
           suggestions={suggestionsFor(step, answers[step.id])}
           answers={answers}
           scene={state.scene}
+          launch={state.launch}
           onSceneChange={(scene) => dispatch({ type: "setScene", scene })}
         />
 

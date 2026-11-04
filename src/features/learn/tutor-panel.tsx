@@ -2,6 +2,7 @@
 
 import { useReducer, useState, type FormEvent } from "react";
 import { TUTOR_LIMITS } from "@/lib/ai/schemas";
+import type { Launch } from "@/lib/physics/moon-launch";
 import type { Answers } from "./learner-profile";
 import type { Scene } from "./scene";
 import type { StepId } from "./steps";
@@ -18,6 +19,7 @@ type TutorPanelProps = {
   suggestions: readonly string[];
   answers: Answers;
   scene: Scene;
+  launch: Launch;
   onSceneChange: (scene: Scene) => void;
 };
 
@@ -26,6 +28,7 @@ export function TutorPanel({
   suggestions,
   answers,
   scene,
+  launch,
   onSceneChange,
 }: TutorPanelProps) {
   const [chat, dispatch] = useReducer(chatReducer, INITIAL_CHAT_STATE);
@@ -41,6 +44,7 @@ export function TutorPanel({
     const response = await askTutor({
       messages: [...chat.messages, { role: "user", content }],
       scene,
+      launch,
       stepId,
       answers,
     });

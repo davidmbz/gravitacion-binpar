@@ -1,20 +1,24 @@
 import { SCENE_LIMITS, type Scene } from "./scene";
 
-type RangeFieldProps = {
+export type RangeFieldProps = {
   id: string;
   label: string;
   marker?: string;
   limits: { min: number; max: number };
   value: number;
+  step?: number;
+  format?: (value: number) => string;
   onChange: (value: number) => void;
 };
 
-function RangeField({
+export function RangeField({
   id,
   label,
   marker,
   limits,
   value,
+  step = 1,
+  format = String,
   onChange,
 }: RangeFieldProps) {
   return (
@@ -25,7 +29,7 @@ function RangeField({
           {label}
         </label>
         <output htmlFor={id} className="text-lg">
-          {value}
+          {format(value)}
         </output>
       </div>
       <input
@@ -33,7 +37,7 @@ function RangeField({
         type="range"
         min={limits.min}
         max={limits.max}
-        step={1}
+        step={step}
         value={value}
         onChange={(event) => onChange(event.target.valueAsNumber)}
         className="h-8 w-full accent-prussian"

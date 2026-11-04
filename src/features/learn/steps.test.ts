@@ -4,11 +4,12 @@ import { INITIAL_SCENE, relativeForce } from "./scene";
 import { gradePrediction, STEPS } from "./steps";
 
 describe("STEPS", () => {
-  it("sigue el orden atracción, masa, distancia", () => {
+  it("sigue el orden atracción, masa, distancia, órbita", () => {
     expect(STEPS.map(({ id }) => id)).toEqual([
       "attraction",
       "mass",
       "distance",
+      "orbit",
     ]);
   });
 

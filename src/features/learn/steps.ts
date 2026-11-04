@@ -1,4 +1,4 @@
-export type StepId = "attraction" | "mass" | "distance";
+export type StepId = "attraction" | "mass" | "distance" | "orbit";
 
 export type MisconceptionId =
   | "larger-mass-pulls-harder"
@@ -8,7 +8,10 @@ export type MisconceptionId =
   | "force-on-one-body"
   | "force-falls-linearly"
   | "force-ignores-distance"
-  | "gravity-vanishes-far-away";
+  | "gravity-vanishes-far-away"
+  | "no-gravity-in-orbit"
+  | "orbit-needs-thrust"
+  | "aiming-away-is-enough";
 
 /** Error de razonamiento que revela cada opción incorrecta. */
 export const MISCONCEPTIONS: Record<MisconceptionId, string> = {
@@ -23,6 +26,9 @@ export const MISCONCEPTIONS: Record<MisconceptionId, string> = {
   "force-ignores-distance": "Creer que la distancia no afecta a la fuerza",
   "gravity-vanishes-far-away":
     "Creer que la gravedad desaparece a gran distancia",
+  "no-gravity-in-orbit": "Creer que en órbita ya no hay gravedad",
+  "orbit-needs-thrust": "Creer que una órbita necesita un empuje constante",
+  "aiming-away-is-enough": "Creer que basta con apuntar lejos del planeta",
 };
 
 export type PredictionOption = {
@@ -197,6 +203,60 @@ export const STEPS: readonly Step[] = [
       answered: [
         "¿Por qué la distancia va al cuadrado y no al cubo?",
         "Enséñame en la mesa qué pasa con el triple de distancia",
+      ],
+    },
+  },
+  {
+    id: "orbit",
+    title: "Caer sin llegar",
+    concept: "Una órbita es una caída que nunca llega al suelo",
+    intro:
+      "Ya sabes de qué depende la atracción. Ahora, en lugar de dos cuerpos quietos, lanzas una luna desde lo alto, a un lado del planeta.",
+    question:
+      "¿Qué hace falta para que la luna no choque nunca con el planeta?",
+    options: [
+      {
+        id: "no-gravity",
+        misconception: "no-gravity-in-orbit",
+        label: "Que a esa altura ya no haya gravedad",
+        explanation:
+          "La gravedad sigue actuando, y es lo que curva la trayectoria. Sin ella, la luna seguiría en línea recta y se perdería.",
+      },
+      {
+        id: "engine",
+        misconception: "orbit-needs-thrust",
+        label: "Que algo la siga empujando durante el viaje",
+        explanation:
+          "No hace falta ningún empuje. Una vez lanzada, lo único que actúa sobre ella es la gravedad.",
+      },
+      {
+        id: "aim-away",
+        misconception: "aiming-away-is-enough",
+        label: "Que salga apuntando hacia arriba, lejos del planeta",
+        explanation:
+          "Apuntar lejos no basta: si va despacio, sube, se frena y vuelve a caer. Lo decisivo es cuánto avanza de lado.",
+      },
+      {
+        id: "fast-sideways",
+        label:
+          "Que avance tan rápido de lado que, al caer, siempre falle el planeta",
+        explanation:
+          "Así es. La luna cae todo el tiempo, pero avanza tanto de lado que nunca llega a la superficie.",
+      },
+    ],
+    correctOptionId: "fast-sideways",
+    takeaway:
+      "Una órbita es una caída que nunca llega. Con poca velocidad, la luna choca. Con la justa, cae alrededor del planeta. Con demasiada, la gravedad no la retiene y escapa.",
+    invitation:
+      "Compruébalo: lanza con velocidad 0,7 y mira qué ocurre. Después prueba con 1 y con 1,5.",
+    tutorPrompts: {
+      pending: [
+        "¿Qué quiere decir que algo está en órbita?",
+        "Dame una pista sin decirme la respuesta",
+      ],
+      answered: [
+        "¿Por qué la Luna no se cae a la Tierra?",
+        "¿Qué velocidad y qué ángulo me recomiendas probar?",
       ],
     },
   },

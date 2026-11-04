@@ -36,9 +36,10 @@ export async function runTutor(
 ): Promise<TutorResult> {
   const messages = toModelMessages(request);
   // Con la predicción pendiente no se ofrece la herramienta: mover la mesa
-  // revelaría el resultado antes de que la persona responda.
-  const tools =
-    request.answers[request.stepId] === null ? [] : [CONFIGURE_SCENE_TOOL];
+  // revelaría el resultado. En el paso de la luna no hay mesa que mover.
+  const canMoveTable =
+    request.answers[request.stepId] !== null && request.stepId !== "orbit";
+  const tools = canMoveTable ? [CONFIGURE_SCENE_TOOL] : [];
 
   const baseParams = {
     model,

@@ -82,3 +82,10 @@ Una entrada por decisión relevante. Este registro alimenta el README y la prepa
 * Alternativas descartadas: que el modelo mantenga el perfil con una herramienta, que lo haría variable y costaría llamadas. Guardarlo en un estado propio, que podría desincronizarse. Enviar el perfil ya calculado, que permitiría inyectar texto en el prompt.
 * Decisión: `deriveProfile` es una función pura de las respuestas. El cliente la usa para mostrar "Lo que has demostrado". Al servidor solo llegan identificadores validados con Zod, y él recalcula el perfil. Cada opción incorrecta nombra su error, y tras un fallo la primera pregunta sugerida apunta a esa respuesta.
 * Coste: es una señal débil, una pregunta por concepto y sin reintento, y la interfaz lo dice. El perfil no sobrevive a una recarga. La adaptación del tutor depende de que el modelo siga el prompt, aunque el perfil en sí es determinista.
+
+### Lanzar una luna
+
+* Contexto: falta enseñar por qué la gravedad no hace caer a la Luna, y conectar la ley con las órbitas de la galería.
+* Alternativas descartadas: Verlet en vivo, que añadiría un segundo integrador y un bucle físico. Clasificar mirando el tramo integrado, que no vería un choque posterior al tiempo calculado. Una herramienta para que el modelo lance, que añade superficie sin requisito.
+* Decisión: planeta fijo y luna de masa despreciable, porque la solución exacta es conocida. Energía y momento angular clasifican el resultado. DOPRI5 calcula 30 unidades de tiempo y se reproduce el tramo hasta que la luna toca el planeta o sale de la mesa. Un test compara los dos caminos en los 169 lanzamientos posibles. El ángulo se limita a ±60° para que el momento angular nunca sea nulo.
+* Coste: es un modelo de dos cuerpos con planeta fijo, no una simulación completa. Una órbita muy abierta se corta al salir de la mesa, y un choque posterior al tramo se anuncia sin verse. El paso no ofrece `configurar_escena`: el tutor solo puede proponer valores.

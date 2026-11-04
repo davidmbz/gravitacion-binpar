@@ -1,6 +1,7 @@
 import { z } from "zod";
 import { SCENE_LIMITS } from "@/features/learn/scene";
 import { STEPS } from "@/features/learn/steps";
+import { LAUNCH_LIMITS } from "@/lib/physics/moon-launch";
 
 /** Cada límite acota el coste de una petición. El README detalla qué no protegen. */
 export const TUTOR_LIMITS = {
@@ -26,6 +27,11 @@ export const sceneSchema = z.strictObject({
     .max(SCENE_LIMITS.distance.max),
 });
 
+export const launchSchema = z.strictObject({
+  speed: z.number().min(LAUNCH_LIMITS.speed.min).max(LAUNCH_LIMITS.speed.max),
+  angle: z.number().min(LAUNCH_LIMITS.angle.min).max(LAUNCH_LIMITS.angle.max),
+});
+
 const messageSchema = z.discriminatedUnion("role", [
   z.strictObject({
     role: z.literal("user"),
@@ -48,13 +54,15 @@ export const tutorRequestSchema = z.strictObject({
       error: "El último mensaje debe ser de la persona",
     }),
   scene: sceneSchema,
-  stepId: z.enum(["attraction", "mass", "distance"]),
+  launch: launchSchema,
+  stepId: z.enum(["attraction", "mass", "distance", "orbit"]),
   /** Solo identificadores: el servidor deriva el perfil, no lo recibe hecho. */
   answers: z
     .strictObject({
       attraction: answerSchema,
       mass: answerSchema,
       distance: answerSchema,
+      orbit: answerSchema,
     })
     .refine(
       (answers) =>

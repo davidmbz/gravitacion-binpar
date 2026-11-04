@@ -3,18 +3,19 @@ import { TUTOR_LIMITS } from "@/lib/ai/schemas";
 import { deriveProfile, suggestionsFor, type Answers } from "./learner-profile";
 import { STEPS } from "./steps";
 
-const noAnswers: Answers = { attraction: null, mass: null, distance: null };
+const noAnswers: Answers = {
+  attraction: null,
+  mass: null,
+  distance: null,
+  orbit: null,
+};
 
 describe("deriveProfile", () => {
   it("empieza vacío, sin revelar ningún concepto", () => {
     const profile = deriveProfile(noAnswers);
     expect(profile.concepts).toEqual([]);
     expect(profile.misconceptions).toEqual([]);
-    expect(profile.pendingSteps).toEqual([
-      "Atracción mutua",
-      "Masa",
-      "Distancia",
-    ]);
+    expect(profile.pendingSteps).toEqual(STEPS.map(({ title }) => title));
   });
 
   it("marca como demostrado un acierto, sin registrar errores", () => {
