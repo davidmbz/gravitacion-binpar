@@ -52,7 +52,8 @@ function buildCards(): GalleryCard[] {
 export default function GalleryPage() {
   const cards = buildCards();
   const title = (
-    <div>
+    // Con el ancho limitado, el filtro se queda a la derecha y no roba alto.
+    <div className="lg:max-w-xl">
       <h1 className="text-3xl leading-tight">Seis órbitas de tres cuerpos</h1>
       <p className="mt-1 text-ink-soft">
         Tres cuerpos suelen acabar en caos. Estas seis órbitas son de las pocas

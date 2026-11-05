@@ -81,6 +81,16 @@ for (const size of SCREENS) {
       await expectNoPageScroll(page);
     });
 
+    test("el filtro comparte fila con el título", async ({ page }) => {
+      await page.goto("/orbitas");
+      await expect(page.getByRole("status")).toHaveText("6 de 6 órbitas");
+      const title = await page.getByRole("heading", { level: 1 }).boundingBox();
+      const filter = await page
+        .getByRole("radio", { name: "Todas" })
+        .boundingBox();
+      expect(filter?.x).toBeGreaterThan((title?.x ?? 0) + (title?.width ?? 0));
+    });
+
     test("filtrar la galería no estira las láminas", async ({ page }) => {
       await page.goto("/orbitas");
       await expect(page.getByRole("status")).toHaveText("6 de 6 órbitas");

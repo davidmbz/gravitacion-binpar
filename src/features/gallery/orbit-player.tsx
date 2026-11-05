@@ -266,7 +266,7 @@ export function OrbitPlayer({
             <p
               ref={readoutRef}
               aria-hidden="true"
-              className="absolute top-3 right-3 z-10 max-w-44 text-right leading-snug text-cinnabar tabular-nums lg:top-5 lg:right-6 lg:max-w-none lg:text-xl"
+              className="absolute top-3 right-3 z-10 max-w-52 text-right leading-snug text-cinnabar tabular-nums lg:top-5 lg:right-6 lg:max-w-none lg:text-xl"
             />
           )}
 
