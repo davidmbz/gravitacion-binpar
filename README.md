@@ -21,6 +21,38 @@ Versión online: https://gravitacion-binpar.vercel.app/
 | El modelo puede operar la aplicación | Hecho: `configurar_escena` |
 | El usuario puede buscar órbitas propias | No incluido |
 
+## Ejecutar en local
+
+Necesitas Node 22 y pnpm 11.
+
+```bash
+pnpm install
+cp .env.example .env.local
+pnpm dev
+```
+
+Después rellena `.env.local`:
+
+| Variable | Uso |
+| --- | --- |
+| `ANTHROPIC_API_KEY` | Clave de la API de Anthropic. Solo se usa en el servidor |
+| `ANTHROPIC_MODEL` | Identificador del modelo, por ejemplo `claude-opus-5-5` |
+
+Sin estas variables, el tutor muestra un error claro y todo lo demás funciona.
+
+## Comprobaciones
+
+```bash
+pnpm lint
+pnpm typecheck
+pnpm test
+pnpm exec playwright install chromium
+pnpm test:e2e
+pnpm build
+```
+
+Para correr los e2e contra la versión publicada, define `E2E_BASE_URL`. GitHub Actions ejecuta lint, typecheck, tests y build en cada pull request y en `main`. Los e2e los ejecuto en local.
+
 ## Decisiones técnicas
 
 El registro completo, con alternativas y costes, está en [docs/decisiones.md](docs/decisiones.md). Resumo aquí las principales.
