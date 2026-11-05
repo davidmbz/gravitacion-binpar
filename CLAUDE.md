@@ -1,26 +1,26 @@
 @AGENTS.md
 
-# Gravitación · Prueba técnica BinPar
+# Gravitación
 
 App web que enseña la ley de gravitación universal de Newton a personas adultas sin formación en física, con un modelo de lenguaje integrado en el aprendizaje y una galería de seis soluciones periódicas del problema de los tres cuerpos.
 
 Datos de las órbitas: `docs/orbitas.md`. Decisiones: `docs/decisiones.md`.
 
-## Qué se evalúa
+## Criterios del proyecto
 
-El código lo defenderá David en una entrevista, línea a línea. Esto manda sobre cualquier otra preferencia:
+Estos criterios mandan sobre cualquier otra preferencia:
 
 * Cada decisión relevante necesita una razón y un coste conocido. Regístrala en `docs/decisiones.md`: contexto, alternativas descartadas, decisión y coste.
-* Prefiere código que David pueda explicar a código ingenioso. Sin abstracciones sin uso real.
+* Prefiere código fácil de explicar a código ingenioso. Sin abstracciones sin uso real.
 * Acotar vale más que abarcar. Si algo queda fuera o tiene un límite, se dice en el README. Nada a medias sin mencionar.
 * Los mínimos del enunciado van antes que cualquier extra.
-* El acabado visual y la claridad de la navegación son criterios de evaluación, no un remate final.
+* El acabado visual y la claridad de la navegación son parte del trabajo, no un remate final.
 
 ## Stack
 
 * Obligatorio: TypeScript, Next.js (App Router) y pnpm.
 * Tailwind CSS para estilos. Canvas 2D para las simulaciones.
-* Física propia en TypeScript puro, sin motor externo: es la parte que hay que poder defender.
+* Física propia en TypeScript puro, sin motor externo: es el núcleo del proyecto.
 * Modelo de lenguaje solo desde el servidor, en un Route Handler.
 * Vitest para lógica, Playwright y axe para flujos y accesibilidad.
 * Justifica en `docs/decisiones.md` cualquier dependencia nueva.
@@ -82,8 +82,8 @@ Server Components por defecto. `"use client"` solo donde haya interacción, y lo
 
 ## Git y entorno
 
-* Commits pequeños en español con formato Conventional Commits. La historia también se revisará.
-* El repositorio será público: revisa que no entren secretos.
+* Commits pequeños en español con formato Conventional Commits.
+* El repositorio es público: revisa que no entren secretos.
 * `.gitignore` ignora `.env*`. Para versionar `.env.example`, añade `!.env.example`.
-* Claude tiene bloqueada la lectura de `.env` y `.env.*`. David gestiona `.env.local`.
+* Claude tiene bloqueada la lectura de `.env` y `.env.*`. `.env.local` se gestiona a mano.
 * Un hito está cerrado si pasan lint, typecheck, tests y build, y si la app se ha comprobado en el navegador.

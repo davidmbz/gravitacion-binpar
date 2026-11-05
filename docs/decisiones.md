@@ -1,6 +1,6 @@
 # Decisiones técnicas
 
-Una entrada por decisión relevante. Este registro alimenta el README y la preparación de la entrevista.
+Una entrada por decisión relevante. Este registro alimenta el README.
 
 ## Plantilla
 
@@ -121,7 +121,7 @@ Una entrada por decisión relevante. Este registro alimenta el README y la prepa
 ### Rejilla de la galería
 
 * Contexto: seis láminas iguales desperdiciaban espacio, porque Figura de ocho y Butterfly I son mucho más anchas que altas. En una curva compartida, además, el último cuerpo tapaba a los otros dos.
-* Alternativas descartadas: destacar una órbita a mano, que no tiene una razón defendible. Usar `grid-auto-flow: dense` para evitar huecos en móvil, que separa el orden visual del de teclado.
+* Alternativas descartadas: destacar una órbita a mano, que no tiene una razón clara. Usar `grid-auto-flow: dense` para evitar huecos en móvil, que separa el orden visual del de teclado.
 * Decisión: la lámina es ancha si su encuadre real lo es. El orden elegido llena cuatro y dos columnas sin huecos, y un test lo comprueba con las órbitas reales. En las curvas compartidas se dibuja el tercio que recorre cada cuerpo, y así aparecen los tres colores.
 * Coste: el orden ya no es el del catálogo. Al filtrar en móvil puede quedar un hueco, porque el orden solo está pensado para las seis.
 
