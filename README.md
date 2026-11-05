@@ -98,7 +98,7 @@ El alcance temático se pide en el prompt, y el texto de la persona se trata com
 
 ### Aplicación
 
-* Las órbitas se integran en el hilo principal, sin Worker. Abrir el detalle tarda 8–36 ms en un Mac. Perturbar tarda de 53 a 181 ms, y hasta 1,3 s con la CPU ralentizada 6×, con un aviso visible. Lo he probado en un móvil real, pero no he medido allí estos tiempos.
+* Las órbitas se integran en el hilo principal, sin Worker. Abrir el detalle tarda 8–36 ms en un Mac. Perturbar tarda de 53 a 181 ms, y hasta 1,3 s con la CPU ralentizada 6×, con un aviso visible. También lo he probado y medido en un móvil real.
 * Las flechas de Aprende son lineales con la fuerza. Por encima de lo que cabe se marcan como fuera de escala, y por debajo tienen una longitud mínima. El número siempre es exacto.
 * En una mesa muy baja, como un móvil en horizontal, los cuerpos se dibujan más pequeños y la mesa no llena todo el ancho.
 * "Lo que has demostrado" se basa en una pregunta por concepto, sin reintento. Es una señal débil, y la interfaz lo dice.
