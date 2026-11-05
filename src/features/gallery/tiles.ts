@@ -6,15 +6,27 @@ import type { Frame } from "./trajectory";
  * visual coincide con el de teclado en ambos casos.
  */
 export const GALLERY_TILES = [
-  { slug: "lagrange", teaser: "¿Puede un triángulo girar sin deformarse?" },
-  { slug: "goggles", teaser: "La primera en desviarse. ¿Cuánto aguanta?" },
+  {
+    slug: "lagrange",
+    teaser: "Un triángulo perfecto que gira sin deformarse.",
+  },
+  {
+    slug: "goggles",
+    teaser: "La primera en descontrolarse: aguanta unos seis periodos.",
+  },
   {
     slug: "figura-de-ocho",
-    teaser: "Tres cuerpos, una sola curva. ¿Quién sigue a quién?",
+    teaser: "Tres cuerpos persiguiéndose por la misma curva.",
   },
-  { slug: "butterfly-i", teaser: "Casi chocan y salen despedidos. Míralo." },
-  { slug: "moth-i", teaser: "Trazos amplios y encuentros más suaves." },
-  { slug: "yin-yang-i", teaser: "La que más tarda en repetirse." },
+  {
+    slug: "butterfly-i",
+    teaser: "Pasan casi rozándose y salen disparados.",
+  },
+  { slug: "moth-i", teaser: "Grandes bucles que se cruzan sin parar." },
+  {
+    slug: "yin-yang-i",
+    teaser: "La más larga: tarda unas 17 unidades de tiempo en repetirse.",
+  },
 ] as const;
 
 /** Por encima de esta proporción, la curva se aprovecha mejor en doble ancho. */

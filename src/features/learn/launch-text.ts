@@ -18,12 +18,12 @@ export function formatSpeed(speed: number): string {
 export function describeOutcome(outcome: LaunchOutcome): string {
   switch (outcome.kind) {
     case "crash":
-      return "Choque: su trayectoria corta el planeta. No avanza lo bastante de lado para fallarlo.";
+      return "Choque: no avanza lo bastante de lado y acaba estrellada contra el planeta.";
     case "escape":
-      return "Escape: va tan rápido que la gravedad no la retiene. No volverá.";
+      return "Escape: va demasiado rápido y la gravedad ya no puede retenerla.";
     case "orbit":
       return outcome.period > FLIGHT_DURATION
         ? "Órbita muy abierta: la gravedad la retiene, pero tarda en volver más de lo que se ha calculado."
-        : `Órbita: cae todo el tiempo y siempre falla el planeta. Da una vuelta cada ${number.format(outcome.period)} unidades de tiempo.`;
+        : `Órbita: cae sin parar y nunca llega a tocar el planeta. Da una vuelta cada ${number.format(outcome.period)} unidades de tiempo.`;
   }
 }

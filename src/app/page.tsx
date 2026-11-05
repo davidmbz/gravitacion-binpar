@@ -25,13 +25,12 @@ export default function HomePage() {
 
       <div className="mt-6 grid gap-6 lg:mt-10 lg:grid-cols-2 lg:gap-12">
         <h1 className="text-4xl leading-tight sm:text-6xl">
-          Dos cuerpos cualesquiera se atraen.
+          Todo lo que tiene masa se atrae.
         </h1>
         <div>
           <p className="max-w-prose text-lg">
-            Newton lo resumió en una sola ley. Compruébala moviendo masas con
-            tus manos y mira después lo que ocurre cuando entra un tercer
-            cuerpo.
+            Una sola ley de Newton lo explica todo. Interactúa con las masas y
+            observa el caos que se desata al introducir un tercer cuerpo.
           </p>
           <div className="mt-6 flex flex-wrap items-center gap-x-6 gap-y-3 text-lg">
             <Link

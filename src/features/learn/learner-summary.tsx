@@ -46,7 +46,7 @@ export function LearnerSummary({ profile }: { profile: LearnerProfile }) {
         </>
       )}
       <p className="mt-4 text-ink-soft">
-        Se basa en una pregunta por concepto, así que es una pista, no una nota.
+        Solo hay una pregunta por concepto: tómalo como orientación.
       </p>
     </>
   );

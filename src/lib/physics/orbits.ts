@@ -86,7 +86,7 @@ export const ORBITS: readonly Orbit[] = [
     period: 6.23564136316479,
     initialState: collinearState(0.306892758965492, 0.125506782829762),
     summary:
-      "Los cuerpos pasan muy cerca unos de otros y salen despedidos a gran velocidad. El dibujo coincide consigo mismo al girarlo media vuelta.",
+      "Los cuerpos pasan casi rozándose y salen despedidos a gran velocidad. Gira el dibujo media vuelta y coincide consigo mismo.",
     limitation:
       "Sus condiciones iniciales son valores numéricos redondeados, no una fórmula. Li y Liao (2013) observaron que al menos siete de las quince órbitas de este catálogo se alejan de la trayectoria periódica en simulaciones de alta precisión.",
     source: LI_LIAO,
@@ -98,7 +98,7 @@ export const ORBITS: readonly Orbit[] = [
     period: 10.4668176954385,
     initialState: collinearState(0.0833000564575194, 0.127889282226563),
     summary:
-      "Una trayectoria delicada: con los valores publicados es la primera de las seis en desviarse, tras unos seis periodos.",
+      "Con los valores publicados, es la primera en desviarse: aguanta unos seis periodos.",
     limitation:
       "Sus condiciones iniciales son valores numéricos redondeados, no una fórmula. Li y Liao (2013) observaron que al menos siete de las quince órbitas de este catálogo se alejan de la trayectoria periódica en simulaciones de alta precisión.",
     source: LI_LIAO,
@@ -110,7 +110,7 @@ export const ORBITS: readonly Orbit[] = [
     period: 14.8939,
     initialState: collinearState(0.46444, 0.39606),
     summary:
-      "Trazos amplios y encuentros menos violentos que en sus vecinas. Aquí se usan los cinco decimales del artículo original.",
+      "Grandes bucles y cuerpos que se acercan menos que en otras órbitas.",
     limitation:
       "Con solo cinco decimales, los cuerpos no vuelven exactamente al punto de partida. Sus condiciones iniciales son valores numéricos redondeados, no una fórmula.",
     source: SUVAKOV,
