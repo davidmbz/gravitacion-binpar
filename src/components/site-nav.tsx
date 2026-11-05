@@ -6,7 +6,7 @@ import { GalleryLink } from "@/features/gallery/gallery-link";
 
 function linkClass(isCurrent: boolean): string {
   return isCurrent
-    ? "inline-block py-2 text-ink underline decoration-cinnabar decoration-2"
+    ? "inline-block py-2 text-ink underline decoration-cinnabar decoration-2 underline-offset-4 [text-decoration-skip-ink:none]"
     : "inline-block py-2 text-ink no-underline hover:underline";
 }
 

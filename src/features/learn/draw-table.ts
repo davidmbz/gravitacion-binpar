@@ -20,6 +20,18 @@ const SIDE_MARGIN_IN_UNITS = 0.6;
 /** Espacio reservado abajo para la regla y su etiqueta. */
 const RULE_SPACE = 44;
 
+/** Por debajo de este ancho, los textos flotantes alcanzan a los cuerpos. */
+const NARROW_WIDTH = 640;
+
+/** Alto de esos textos: fórmula, multiplicador y nota del resultado. */
+const OVERLAY_HEIGHT = 72;
+
+/** Separación entre un cuerpo y el carril de su flecha. */
+const LANE_GAP = 16;
+
+/** Alto que ocupa, por fuera del carril, la etiqueta del cuerpo. */
+const LABEL_HEIGHT = 14;
+
 // Con esta escala, ×¼ aún se ve en móvil y ×4 cabe a cualquier distancia.
 const ARROW_UNITS_PER_MULTIPLE = 0.75;
 const MIN_ARROW_LENGTH = 5;
@@ -54,9 +66,40 @@ function arrowSize(
   };
 }
 
-export function computeLayout(width: number, scene: Scene): TableLayout {
-  // La distancia va a escala real en todo el ancho disponible.
-  const unit = width / (SCENE_LIMITS.distance.max + 2 * SIDE_MARGIN_IN_UNITS);
+export type TableBand = {
+  /** Primer píxel libre de textos flotantes. */
+  top: number;
+  axisY: number;
+  ruleY: number;
+  /** Mayor unidad con la que cuerpos, flechas y etiquetas caben en el alto. */
+  maxUnit: number;
+};
+
+/** Reparte el alto: encima, los textos flotantes; debajo, la regla. */
+export function computeBand(width: number, height: number): TableBand {
+  const top = width < NARROW_WIDTH ? OVERLAY_HEIGHT : 0;
+  const usable = height - RULE_SPACE - top;
+  return {
+    top,
+    axisY: top + usable / 2,
+    ruleY: height - RULE_SPACE + 8,
+    maxUnit:
+      (usable - 2 * (LANE_GAP + LABEL_HEIGHT)) /
+      (2 * MAX_RADIUS_IN_UNITS * DIAMOND_SCALE),
+  };
+}
+
+export function computeLayout(
+  width: number,
+  scene: Scene,
+  maxUnit: number = Infinity,
+): TableLayout {
+  // La distancia va a escala real. Normalmente manda el ancho, pero en una mesa
+  // muy baja manda el alto: si no, los cuerpos y sus etiquetas no cabrían.
+  const unit = Math.min(
+    width / (SCENE_LIMITS.distance.max + 2 * SIDE_MARGIN_IN_UNITS),
+    maxUnit,
+  );
   const separation = scene.distance * unit;
   const xA = width / 2 - separation / 2;
   const xB = width / 2 + separation / 2;
@@ -247,15 +290,14 @@ export function drawTable(
   context: CanvasRenderingContext2D,
   { width, height, scene, forcesVisible, reference, fontFamily }: DrawOptions,
 ) {
-  const layout = computeLayout(width, scene);
+  const { axisY, ruleY, maxUnit } = computeBand(width, height);
+  const layout = computeLayout(width, scene, maxUnit);
   const { xA, xB, radiusA, halfDiagonalB, arrow } = layout;
-  const ruleY = height - RULE_SPACE + 8;
-  const axisY = (height - RULE_SPACE) / 2;
 
   // Cada flecha va en su propio carril: así se ven enteras aunque se crucen.
   const maxExtent = MAX_RADIUS_IN_UNITS * layout.unit * DIAMOND_SCALE;
-  const laneA = axisY - maxExtent - 16;
-  const laneB = axisY + maxExtent + 16;
+  const laneA = axisY - maxExtent - LANE_GAP;
+  const laneB = axisY + maxExtent + LANE_GAP;
 
   context.clearRect(0, 0, width, height);
 
@@ -270,7 +312,7 @@ export function drawTable(
     COLORS.verdigris,
   );
 
-  const before = reference && computeLayout(width, reference);
+  const before = reference && computeLayout(width, reference, maxUnit);
   if (before) {
     drawOutline(
       context,

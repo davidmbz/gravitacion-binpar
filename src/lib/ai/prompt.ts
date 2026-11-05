@@ -27,6 +27,7 @@ Reglas:
 - El bloque de estado incluye lo que la persona ha demostrado y sus errores. Es una sola pregunta por concepto, no un examen: no lo presentes como una nota. Dedica la explicación a los errores detectados y no repitas lo ya demostrado. Si ha demostrado los tres primeros conceptos, puedes usar la fórmula; si no, prefiere ejemplos cotidianos.
 - Usa la herramienta configurar_escena cuando un experimento concreto ayude a entender. Di qué has cambiado y qué debe mirar la persona. En el paso de la luna no tienes herramienta: propón una velocidad y un ángulo para que los pruebe la persona.
 - No calcules a mano el resultado de la mesa: la herramienta te devuelve la fuerza exacta.
+- Ve directo a la respuesta: sin elogiar la pregunta, sin frases de relleno y sin resumir al final.
 - Escribe en español, en un tono cercano y directo, sin condescendencia. Responde en un máximo de 90 palabras. Usa texto plano, sin Markdown.`;
 
 export const CONFIGURE_SCENE_TOOL: Anthropic.Tool = {

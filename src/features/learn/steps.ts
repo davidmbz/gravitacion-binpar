@@ -73,7 +73,7 @@ export const STEPS: readonly Step[] = [
         misconception: "larger-mass-pulls-harder",
         label: "A atrae a B con más fuerza que B a A, porque tiene más masa",
         explanation:
-          "Es la intuición más habitual: más masa, más fuerza. La masa de A sí aumenta la atracción, pero la aumenta para los dos cuerpos por igual.",
+          "Es un error muy común. La masa de A aumenta la atracción, pero para los dos cuerpos por igual.",
       },
       {
         id: "stronger-on-a",
@@ -86,14 +86,14 @@ export const STEPS: readonly Step[] = [
         id: "equal-and-opposite",
         label: "Son iguales y van en sentidos opuestos",
         explanation:
-          "Así es. Aunque A tenga el doble de masa, las dos fuerzas miden lo mismo y cada una apunta hacia el otro cuerpo.",
+          "Aunque A tenga el doble de masa, las dos fuerzas miden lo mismo y cada una apunta hacia el otro cuerpo.",
       },
     ],
     correctOptionId: "equal-and-opposite",
     takeaway:
-      "Es una sola atracción con dos extremos. Lo que cambia es el efecto: con la misma fuerza, el cuerpo de menos masa se mueve más. Por eso vemos caer la manzana y no vemos subir la Tierra.",
+      "Las dos fuerzas son idénticas, pero no tienen el mismo efecto: el cuerpo con menos masa se mueve más. Por eso la manzana cae y la Tierra ni se inmuta.",
     invitation:
-      "Cambia las masas y la distancia. Las dos flechas crecen y menguan a la vez, y siempre miden lo mismo.",
+      "Cambia masas y distancia como quieras: las dos flechas siempre miden lo mismo.",
     demonstration: null,
     resultNote: "Misma fuerza, sentidos opuestos",
     tutorPrompts: {
@@ -126,8 +126,7 @@ export const STEPS: readonly Step[] = [
       {
         id: "doubles",
         label: "Se duplica: ×2",
-        explanation:
-          "Así es. Si una de las masas se duplica, la fuerza también.",
+        explanation: "Si una de las masas se duplica, la fuerza también.",
       },
       {
         id: "quadruples",
@@ -176,12 +175,12 @@ export const STEPS: readonly Step[] = [
         misconception: "force-falls-linearly",
         label: "Se queda en la mitad: ×½",
         explanation:
-          "Es la respuesta más natural: doble de distancia, mitad de fuerza. Pero la fuerza baja más deprisa: se queda en la mitad de la mitad.",
+          "Parece lógico, pero la gravedad cae más rápido: se queda en la mitad de la mitad.",
       },
       {
         id: "quarter",
         label: "Se queda en un cuarto: ×¼",
-        explanation: "Así es. A doble distancia, la fuerza es la cuarta parte.",
+        explanation: "A doble distancia, la fuerza es la cuarta parte.",
       },
       {
         id: "unchanged",
@@ -202,7 +201,7 @@ export const STEPS: readonly Step[] = [
     takeaway:
       "Piensa en un espray de pintura. A doble distancia, la mancha es el doble de ancha y el doble de alta: la misma pintura se reparte en cuatro veces más superficie, y cada trozo recibe un cuarto. Con la gravedad pasa lo mismo. Por eso la distancia va al cuadrado.",
     invitation:
-      "Lleva la distancia de 4 a 8 y mira el número. Luego bájala a 2: a mitad de distancia, la fuerza es ×4.",
+      "Lleva la distancia de 4 a 8 y mira cómo se desploma la fuerza. Luego bájala a 2: a mitad de distancia, la fuerza es ×4.",
     demonstration: { massA: 4, massB: 2, distance: 8 },
     resultNote: null,
     tutorPrompts: {
@@ -251,14 +250,14 @@ export const STEPS: readonly Step[] = [
         label:
           "Que avance tan rápido de lado que, al caer, siempre falle el planeta",
         explanation:
-          "Así es. La luna cae todo el tiempo, pero avanza tanto de lado que nunca llega a la superficie.",
+          "La luna cae todo el tiempo, pero avanza tanto de lado que nunca llega a la superficie.",
       },
     ],
     correctOptionId: "fast-sideways",
     takeaway:
       "Una órbita es una caída que nunca llega. Con poca velocidad, la luna choca. Con la justa, cae alrededor del planeta. Con demasiada, la gravedad no la retiene y escapa.",
     invitation:
-      "Lanza con velocidad 0,7 y mira qué ocurre. Después prueba con 1 y con 1,5.",
+      "Lanza a 0,7, a 1 y a 1,5. Un solo cambio de velocidad decide si choca, orbita o escapa.",
     demonstration: null,
     resultNote: null,
     tutorPrompts: {

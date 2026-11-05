@@ -28,12 +28,13 @@ export function describeComparison({
   peakSeparation,
   visibleAt,
 }: OrbitComparison): string {
-  const start = `Dos cuerpos empezaron desplazados ${PERTURBATION_SIZE.toLocaleString("es-ES")} unidades.`;
+  const size = PERTURBATION_SIZE.toLocaleString("es-ES");
 
+  // "Bastó" solo es cierto si se llegó a ver algo: el otro caso va en neutro.
   if (visibleAt === null) {
-    return `${start} En ${COMPARISON_DURATION} unidades de tiempo, la separación no pasó de ${formatSeparation(peakSeparation)}: aún no se distingue a simple vista.`;
+    return `Se movieron dos cuerpos ${size} unidades. En ${COMPARISON_DURATION} unidades de tiempo, la separación no pasó de ${formatSeparation(peakSeparation)}: aún no se distingue a simple vista.`;
   }
 
   const growth = Math.round(VISIBLE_SEPARATION / PERTURBATION_SIZE);
-  return `${start} En el instante ${formatTime(visibleAt)}, la separación ya era ${growth} veces mayor, y llegó a ${formatSeparation(peakSeparation)}.`;
+  return `Bastó mover dos cuerpos ${size} unidades: en el instante ${formatTime(visibleAt)} la separación ya era ${growth} veces mayor, y llegó a ${formatSeparation(peakSeparation)}.`;
 }

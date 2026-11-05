@@ -68,7 +68,7 @@ for (const size of SCREENS) {
       page,
     }) => {
       await page.goto("/orbitas/goggles");
-      await page.getByRole("tab", { name: "Límites de la animación" }).click();
+      await page.getByRole("tab", { name: "Límites" }).click();
       await expect(
         page.getByRole("heading", { name: "Lo que esta animación no es" }),
       ).toBeVisible();
@@ -79,6 +79,16 @@ for (const size of SCREENS) {
         .click();
       await expect(page.getByRole("status")).toContainText("100 veces mayor");
       await expectNoPageScroll(page);
+    });
+
+    test("el filtro comparte fila con el título", async ({ page }) => {
+      await page.goto("/orbitas");
+      await expect(page.getByRole("status")).toHaveText("6 de 6 órbitas");
+      const title = await page.getByRole("heading", { level: 1 }).boundingBox();
+      const filter = await page
+        .getByRole("radio", { name: "Todas" })
+        .boundingBox();
+      expect(filter?.x).toBeGreaterThan((title?.x ?? 0) + (title?.width ?? 0));
     });
 
     test("filtrar la galería no estira las láminas", async ({ page }) => {
@@ -126,6 +136,49 @@ test("en móvil, la órbita y sus controles quedan a la vista", async ({
     expect(box?.height).toBeGreaterThanOrEqual(44);
   }
   await expectNoPageScroll(page);
+});
+
+for (const width of [1440, 1920]) {
+  test(`a ${width} px, la cabecera se alinea con el contenido`, async ({
+    page,
+  }) => {
+    await page.setViewportSize({ width, height: 900 });
+    const logo = page.getByRole("link", { name: "Gravitación" });
+
+    await page.goto("/orbitas");
+    const title = page.getByRole("heading", { level: 1 });
+    expect((await logo.boundingBox())?.x).toBe((await title.boundingBox())?.x);
+
+    await page.goto("/orbitas/goggles");
+    const back = page.getByRole("link", { name: "Volver a la galería" });
+    expect((await logo.boundingBox())?.x).toBe((await back.boundingBox())?.x);
+  });
+}
+
+test("la portada mantiene la cabecera en su columna", async ({ page }) => {
+  await page.setViewportSize({ width: 1920, height: 1080 });
+  await page.goto("/");
+  const logo = await page
+    .getByRole("link", { name: "Gravitación" })
+    .boundingBox();
+  const title = await page.getByRole("heading", { level: 1 }).boundingBox();
+  expect(logo?.x).toBe(title?.x);
+});
+
+test("al perturbar, las tres pestañas caben en una fila a 375 px", async ({
+  page,
+}) => {
+  await page.setViewportSize({ width: 375, height: 667 });
+  await page.goto("/orbitas/lagrange");
+  await page.getByRole("button", { name: "Perturbar", exact: true }).click();
+
+  const tabs = page.getByRole("tab");
+  await expect(tabs).toHaveCount(3);
+  const rows = new Set<number | undefined>();
+  for (const tab of await tabs.all()) {
+    rows.add((await tab.boundingBox())?.y);
+  }
+  expect(rows.size).toBe(1);
 });
 
 test("el filtro de la galería muestra el foco de teclado", async ({ page }) => {
