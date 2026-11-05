@@ -21,50 +21,18 @@ Versión online: https://gravitacion-binpar.vercel.app/
 | El modelo puede operar la aplicación | Hecho: `configurar_escena` |
 | El usuario puede buscar órbitas propias | No incluido |
 
-## Ejecutar en local
-
-Necesitas Node 22 y pnpm 11.
-
-```bash
-pnpm install
-cp .env.example .env.local
-pnpm dev
-```
-
-Después rellena `.env.local`:
-
-| Variable | Uso |
-| --- | --- |
-| `ANTHROPIC_API_KEY` | Clave de la API de Anthropic. Solo se usa en el servidor |
-| `ANTHROPIC_MODEL` | Identificador del modelo, por ejemplo `claude-opus-5-5` |
-
-Sin estas variables, el tutor muestra un error claro y todo lo demás funciona.
-
-## Comprobaciones
-
-```bash
-pnpm lint
-pnpm typecheck
-pnpm test
-pnpm exec playwright install chromium
-pnpm test:e2e
-pnpm build
-```
-
-Para correr los e2e contra la versión publicada, define `E2E_BASE_URL`. GitHub Actions ejecuta lint, typecheck, tests y build en cada pull request y en `main`. Los e2e los ejecuto en local.
-
 ## Decisiones técnicas
 
 El registro completo, con alternativas y costes, está en [docs/decisiones.md](docs/decisiones.md). Resumo aquí las principales.
 
-* Física propia en TypeScript. Uso un integrador DOPRI5 adaptativo con tolerancia 1e-13. Las órbitas tienen encuentros muy cercanos, y un paso fijo exigiría pasos diminutos en toda la trayectoria.
+* Física propia en TypeScript. Uso de un integrador DOPRI5 adaptativo con tolerancia 1e-13. Las órbitas tienen encuentros muy cercanos, y un paso fijo exigiría pasos diminutos en toda la trayectoria.
 * Un periodo calculado y reproducido en bucle. Estas órbitas son inestables: integrarlas sin límite acaba rompiéndolas. Muestreo 4096 instantes uniformes e interpolo con Hermite. El bucle de pintado nunca decide un paso físico.
 * Galería sin bucles compitiendo. Son seis SVG generados en el servidor. Solo se anima la tarjeta con ratón o foco de teclado, y un único bucle garantiza que no haya dos a la vez.
 * Estado al volver. El filtro vive en la URL, el scroll lo restaura el navegador y el enlace de vuelta usa el historial. No dependo de Activity, que solo guarda tres rutas.
 * Pantalla completa sin ocultar nada. Aprende, galería y detalle llenan el alto disponible sin `overflow: hidden`. Con un alto mínimo, una ventana baja o un zoom del 200 % recuperan el scroll normal.
 * Tutor en el servidor. El modelo solo opera la app con `configurar_escena`, validada con Zod. La corrección de las predicciones nunca depende del modelo.
 * Perfil derivado. Es una función pura de las respuestas. Al servidor solo llegan identificadores validados, y él lo recalcula, así que el cliente no puede escribir en el prompt.
-* Perturbación comparable. Desplazo dos cuerpos en sentidos opuestos para conservar el centro de masas. Original y perturbada se integran igual, durante el mismo tiempo.
+* Perturbación comparable. Desplaza dos cuerpos en sentidos opuestos para conservar el centro de masas. Original y perturbada se integran igual, durante el mismo tiempo.
 * Luna clasificada de forma exacta. Energía y momento angular dicen si orbita, choca o escapa. DOPRI5 dibuja la trayectoria, y un test comprueba que ambos coinciden en los 169 lanzamientos posibles.
 
 ## Protección del endpoint del tutor
@@ -114,7 +82,7 @@ Fuera de alcance: buscador de órbitas propias, e2e en CI y pruebas multi-navega
 
 ## Uso de IA
 
-He desarrollado este proyecto con Claude Code. Lo usé para planificar, escribir código y tests, y auditar la física con un agente revisor independiente. Las decisiones, el alcance y la revisión final son míos. El contexto que le di a la herramienta está en `CLAUDE.md` y `.claude/`.
+He desarrollado este proyecto con Claude Code. Lo usé para planificar, escribir código y tests, además de auditar la física con un agente revisor independiente. Las decisiones, el alcance y la revisión final son míos. El contexto que le di a la herramienta está en `CLAUDE.md` y `.claude/`.
 
 ## Fuentes
 
