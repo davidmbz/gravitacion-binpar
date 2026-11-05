@@ -108,7 +108,7 @@ El alcance temático se pide en el prompt, y el texto de la persona se trata com
 * Al filtrar la galería en móvil puede quedar un hueco, porque el orden está pensado para las seis láminas.
 * Una órbita desconocida muestra la página de no encontrado con `noindex`. En Vercel responde 404, pero con `next start` local responde 200, porque el streaming ya ha enviado la cabecera.
 * Las imágenes para compartir usan la fuente por defecto de `ImageResponse`, distinta de la de la web.
-* Los e2e corren en Chromium. También recorrí el flujo principal con Firefox y WebKit de Playwright, pero no lo he probado en Safari real ni con un lector de pantalla.
+* Los e2e corren en Chromium. Además, he probado y medido la app en diferentes dispositivos.
 
 Fuera de alcance: buscador de órbitas propias, e2e en CI y pruebas multi-navegador automatizadas.
 
