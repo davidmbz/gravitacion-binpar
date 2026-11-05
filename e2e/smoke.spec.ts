@@ -36,3 +36,35 @@ test("cada órbita publica su imagen para compartir", async ({
   expect(response.status()).toBe(200);
   expect(response.headers()["content-type"]).toBe("image/png");
 });
+
+test("la portada publica su imagen y sus metadatos para compartir", async ({
+  page,
+  request,
+}) => {
+  await page.goto("/");
+  const meta = (property: string) =>
+    page.locator(`meta[property="${property}"]`).getAttribute("content");
+
+  expect(await meta("og:title")).toBe("Gravitación");
+  expect(await meta("og:description")).toContain("ley de gravitación");
+  expect(await meta("og:type")).toBe("website");
+  await expect(page.locator('meta[name="twitter:card"]')).toHaveAttribute(
+    "content",
+    "summary_large_image",
+  );
+
+  const { pathname, search } = new URL((await meta("og:image")) ?? "");
+  const response = await request.get(`${pathname}${search}`);
+  expect(response.status()).toBe(200);
+  expect(response.headers()["content-type"]).toBe("image/png");
+});
+
+test("una órbita comparte su propio título, no el de la portada", async ({
+  page,
+}) => {
+  await page.goto("/orbitas/goggles");
+  await expect(page.locator('meta[property="og:title"]')).toHaveAttribute(
+    "content",
+    "Goggles",
+  );
+});

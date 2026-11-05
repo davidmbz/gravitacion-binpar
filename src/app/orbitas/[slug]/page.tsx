@@ -24,7 +24,12 @@ export async function generateMetadata({
   const { slug } = await params;
   const orbit = findOrbit(slug);
   if (!orbit) return {};
-  return { title: orbit.name, description: orbit.summary };
+  return {
+    title: orbit.name,
+    description: orbit.summary,
+    // Sin esto heredaría el título y la descripción de la portada al compartir.
+    openGraph: { title: orbit.name, description: orbit.summary },
+  };
 }
 
 export default async function OrbitPage({

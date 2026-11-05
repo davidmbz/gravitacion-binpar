@@ -10,13 +10,23 @@ const caslon = Libre_Caslon_Text({
   style: ["normal", "italic"],
 });
 
+const DESCRIPTION =
+  "Aprende la ley de gravitación de Newton experimentando, y explora seis órbitas de tres cuerpos.";
+
 export const metadata: Metadata = {
   title: {
     default: "Gravitación",
     template: "%s · Gravitación",
   },
-  description:
-    "Aprende la ley de gravitación de Newton experimentando, y explora seis órbitas de tres cuerpos.",
+  description: DESCRIPTION,
+  openGraph: {
+    title: "Gravitación",
+    description: DESCRIPTION,
+    siteName: "Gravitación",
+    locale: "es_ES",
+    type: "website",
+  },
+  twitter: { card: "summary_large_image" },
 };
 
 export const viewport: Viewport = {

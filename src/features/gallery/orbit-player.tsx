@@ -47,7 +47,7 @@ const TABS_ID = "orbit";
 
 const BASE_TABS = [
   { id: "about", label: "Órbita" },
-  { id: "limits", label: "Límites de la animación" },
+  { id: "limits", label: "Límites" },
 ] as const;
 
 const PERTURBATION_TAB = { id: "perturbation", label: "Perturbación" } as const;

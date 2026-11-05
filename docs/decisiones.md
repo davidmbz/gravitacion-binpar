@@ -131,3 +131,10 @@ Una entrada por decisión relevante. Este registro alimenta el README y la prepa
 * Alternativas descartadas: dejar la descripción en el cliente, que la sacaría del HTML del servidor. Abrir el resultado de Perturbar en un diálogo, que taparía justo lo que hay que mirar.
 * Decisión: el reproductor es el contenedor de la pantalla y recibe del servidor la figura y el contenido de las pestañas como props. Los controles van en una barra sobre la órbita. Órbita y Límites de la animación son pestañas visibles desde el principio, y Perturbación aparece al usarla.
 * Coste: el reproductor conoce la distribución de la pantalla además de la reproducción, y crece como componente. El encuadre sigue cambiando con `setAttribute` sobre el SVG.
+
+### Reparto del alto de la mesa
+
+* Contexto: a 375 px, los textos flotantes pisaban la flecha de A. A 844 × 390, la etiqueta A quedaba cortada, porque los cuerpos escalaban con el ancho aunque la mesa fuera muy baja.
+* Alternativas descartadas: ocultar la nota en móvil, que perdía el dato. Una maquetación propia para móvil horizontal, que es mucho cambio para un caso secundario.
+* Decisión: `computeBand` reserva una franja superior en pantallas estrechas y limita la unidad por el alto disponible. Es una función pura, probada con los tamaños reales de la mesa.
+* Coste: en una mesa baja, los cuerpos y la distancia se ven más pequeños y la mesa no llena todo el ancho. El alto reservado es un número fijo que depende de esos textos.
