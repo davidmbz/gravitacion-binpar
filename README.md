@@ -98,13 +98,13 @@ El alcance temático se pide en el prompt, y el texto de la persona se trata com
 
 ### Aplicación
 
-* Las órbitas se integran en el hilo principal, sin Worker. Abrir el detalle tarda 8–36 ms en un Mac. Perturbar tarda de 53 a 181 ms, y hasta 1,3 s con la CPU ralentizada 6×, con un aviso visible. No lo he medido en un móvil real.
+* Las órbitas se integran en el hilo principal, sin Worker. Abrir el detalle tarda 8–36 ms en un Mac. Perturbar tarda de 53 a 181 ms, y hasta 1,3 s con la CPU ralentizada 6×, con un aviso visible. Lo he probado en un móvil real, pero no he medido allí estos tiempos.
 * Las flechas de Aprende son lineales con la fuerza. Por encima de lo que cabe se marcan como fuera de escala, y por debajo tienen una longitud mínima. El número siempre es exacto.
 * En una mesa muy baja, como un móvil en horizontal, los cuerpos se dibujan más pequeños y la mesa no llena todo el ancho.
 * "Lo que has demostrado" se basa en una pregunta por concepto, sin reintento. Es una señal débil, y la interfaz lo dice.
 * La adaptación del tutor depende de que el modelo siga el prompt. El perfil sí es determinista.
 * El progreso de Aprende y la conversación no sobreviven a una recarga.
-* El teclado del móvil lo he simulado reduciendo la ventana, no en un teléfono real. En iOS, el ajuste depende de `visualViewport`. Al escribir en móvil, la mesa se oculta para dejar sitio al campo.
+* He probado el teclado en un móvil real, y en los e2e lo simulo reduciendo la ventana. En iOS, el ajuste depende de `visualViewport`. Al escribir en móvil, la mesa se oculta para dejar sitio al campo.
 * Al filtrar la galería en móvil puede quedar un hueco, porque el orden está pensado para las seis láminas.
 * Una órbita desconocida muestra la página de no encontrado con `noindex`. En Vercel responde 404, pero con `next start` local responde 200, porque el streaming ya ha enviado la cabecera.
 * Las imágenes para compartir usan la fuente por defecto de `ImageResponse`, distinta de la de la web.

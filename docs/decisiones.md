@@ -109,7 +109,7 @@ Una entrada por decisión relevante. Este registro alimenta el README y la prepa
 * Contexto: Aprende, galería y detalle deben llenar el alto disponible sin scroll, pero una ventana baja o un zoom alto no pueden perder contenido.
 * Alternativas descartadas: `overflow: hidden` en la página, que encaja a la fuerza y deja contenido inalcanzable. Una hoja inferior para el tutor en móvil, que añade otra capa y otro manejo del foco.
 * Decisión: `.app-screen` mide `100dvh` menos la cabecera, con un alto mínimo. Por debajo de ese mínimo, la página recupera su scroll normal. Solo los paneles tienen scroll interno. El tutor es una pestaña del panel en los dos tamaños, y sigue montado para conservar la conversación.
-* Coste: el alto mínimo es un número que hay que mantener. En iOS el teclado no encoge `100dvh`, por lo que `use-viewport-height` publica el alto real, y al escribir en móvil la mesa se oculta para dejar sitio al campo. No se ha probado en un teléfono real.
+* Coste: el alto mínimo es un número que hay que mantener. En iOS el teclado no encoge `100dvh`, por lo que `use-viewport-height` publica el alto real, y al escribir en móvil la mesa se oculta para dejar sitio al campo. En los e2e se simula reduciendo la ventana, y se ha comprobado en un móvil real.
 
 ### Fases de Aprende
 
