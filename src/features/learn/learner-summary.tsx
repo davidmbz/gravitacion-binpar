@@ -1,3 +1,4 @@
+import { LAW_SUMMARY } from "./formula";
 import type { LearnerProfile } from "./learner-profile";
 
 const STATUS_LABELS = {
@@ -45,6 +46,7 @@ export function LearnerSummary({ profile }: { profile: LearnerProfile }) {
           </ul>
         </>
       )}
+      <p className="mt-4 lg:hidden">{LAW_SUMMARY}</p>
       <p className="mt-4 text-ink-soft">
         Solo hay una pregunta por concepto: tómalo como orientación.
       </p>

@@ -1,9 +1,9 @@
 import { expect, test, type Page } from "@playwright/test";
 import {
   CORRECT_ANSWERS,
-  completeStep,
   openTutor,
   predict,
+  reachClosing,
 } from "./learn-helpers";
 
 const SCREENS = [
@@ -106,18 +106,56 @@ for (const size of SCREENS) {
     });
 
     test("Aprende mantiene el cierre sin scroll", async ({ page }) => {
-      await page.goto("/aprende");
-      for (const answer of CORRECT_ANSWERS.slice(0, 3)) {
-        await completeStep(page, answer);
-        await page.getByRole("button", { name: "Paso siguiente" }).click();
-      }
-      await completeStep(page, CORRECT_ANSWERS[3]);
-      await page
-        .getByRole("button", { name: "Ver lo que has demostrado" })
-        .click();
-      await expect(page.getByText(/Has acertado 4 de 4/)).toBeVisible();
+      await reachClosing(page);
       await expectNoPageScroll(page);
     });
+  });
+}
+
+// Altos reales con las barras del navegador, además de los de pantalla.
+for (const viewport of [
+  { width: 280, height: 653 },
+  { width: 320, height: 568 },
+  { width: 375, height: 553 },
+  { width: 390, height: 664 },
+  { width: 430, height: 932 },
+  { width: 844, height: 390 },
+  { width: 768, height: 1024 },
+]) {
+  test(`a ${viewport.width} × ${viewport.height}, el cierre cabe en la mesa`, async ({
+    page,
+  }) => {
+    await page.setViewportSize(viewport);
+    await reachClosing(page);
+
+    const fits = await page.evaluate(() => {
+      const stage = document.querySelector("section[aria-label='Simulación']");
+      const formula = stage?.querySelector(".phase-in");
+      if (!stage || !formula) return null;
+      const outer = stage.getBoundingClientRect();
+      const inner = formula.getBoundingClientRect();
+      return {
+        vertical: inner.top >= outer.top && inner.bottom <= outer.bottom,
+        horizontal: inner.left >= outer.left && inner.right <= outer.right,
+      };
+    });
+    expect(fits).toEqual({ vertical: true, horizontal: true });
+
+    // El numerador en una línea: si se parte, la fracción se descoloca.
+    const fraction = page.locator(".phase-in .border-b.border-ink");
+    const lineHeight = await fraction.evaluate((element) => {
+      const { fontSize } = getComputedStyle(element);
+      return element.getBoundingClientRect().height / parseFloat(fontSize);
+    });
+    expect(lineHeight).toBeLessThan(2);
+
+    // La frase de la ley no se pierde: en columna vive en el panel.
+    const law = page
+      .getByText(/La fuerza crece con las masas/)
+      .locator("visible=true");
+    await expect(law).toHaveCount(1);
+    await law.scrollIntoViewIfNeeded();
+    await expect(law).toBeInViewport();
   });
 }
 

@@ -8,6 +8,10 @@ function Piece({ isNew, children }: { isNew: boolean; children: ReactNode }) {
   );
 }
 
+/** La ley en palabras. En columna va en el panel: en la mesa no cabe. */
+export const LAW_SUMMARY =
+  "La fuerza crece con las masas y cae con el cuadrado de la distancia. G es una constante universal.";
+
 const masses = (
   <>
     <i>m</i>
@@ -45,7 +49,8 @@ export function Formula({ predictions, currentStepId, size }: FormulaProps) {
         aria-hidden="true"
         className={`flex items-center ${
           size === "hero"
-            ? "justify-center gap-4 text-5xl leading-tight lg:text-7xl"
+            ? // En columna, la mesa es una franja: la fórmula se mide por la pantalla.
+              "justify-center gap-4 text-[clamp(1.875rem,min(9vw,7dvh),3rem)] leading-tight whitespace-nowrap lg:text-7xl"
             : "gap-2 text-xl leading-none lg:text-2xl"
         }`}
       >
@@ -84,9 +89,8 @@ export function Formula({ predictions, currentStepId, size }: FormulaProps) {
         )}
       </div>
       {size === "hero" && (
-        <p className="mt-6 text-lg text-ink-soft">
-          La fuerza crece con las masas y cae con el cuadrado de la distancia. G
-          es una constante universal.
+        <p className="mt-6 hidden text-lg text-ink-soft lg:block">
+          {LAW_SUMMARY}
         </p>
       )}
     </div>

@@ -138,3 +138,10 @@ Una entrada por decisión relevante. Este registro alimenta el README.
 * Alternativas descartadas: ocultar la nota en móvil, que perdía el dato. Una maquetación propia para móvil horizontal, que es mucho cambio para un caso secundario.
 * Decisión: `computeBand` reserva una franja superior en pantallas estrechas y limita la unidad por el alto disponible. Es una función pura, probada con los tamaños reales de la mesa.
 * Coste: en una mesa baja, los cuerpos y la distancia se ven más pequeños y la mesa no llena todo el ancho. El alto reservado es un número fijo que depende de esos textos.
+
+### Cierre de Aprende en móvil
+
+* Contexto: la fórmula grande y su frase medían unos 305 px en una mesa de 210 px o menos, así que se salían por arriba y por abajo. Pasaba en cuanto las barras del navegador recortaban el alto, también en móviles grandes. El numerador, además, se partía en dos líneas.
+* Alternativas descartadas: dar a la mesa más alto en el cierre, que deja el resumen casi sin sitio. Reducir la frase, que a 320 px sigue sin caber junto a la fórmula. Una consulta de contenedor, que no alcanza al panel, donde tiene que aparecer la frase.
+* Decisión: mientras la pantalla va en columna, la fórmula se mide por el ancho y el alto de la pantalla, sin partir líneas, y la frase pasa al panel, que tiene scroll. Desde `lg` todo sigue igual.
+* Coste: en móvil y tableta, la frase queda lejos de la fórmula y el panel tiene más scroll. La frase existe dos veces en el DOM, una oculta con `display: none`, y los lectores de pantalla solo leen la visible.

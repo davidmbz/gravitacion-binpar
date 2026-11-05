@@ -29,6 +29,18 @@ export async function reachLaunchStep(page: Page) {
   ).toBeVisible();
 }
 
+/** Recorre los cuatro pasos con las respuestas correctas hasta el cierre. */
+export async function reachClosing(page: Page) {
+  await page.goto("/aprende");
+  for (const answer of CORRECT_ANSWERS.slice(0, 3)) {
+    await completeStep(page, answer);
+    await page.getByRole("button", { name: "Paso siguiente" }).click();
+  }
+  await completeStep(page, CORRECT_ANSWERS[3]);
+  await page.getByRole("button", { name: "Ver lo que has demostrado" }).click();
+  await expect(page.getByText(/Has acertado 4 de 4/)).toBeVisible();
+}
+
 export async function openTutor(page: Page) {
   await page.getByRole("tab", { name: "Tutor" }).click();
 }
